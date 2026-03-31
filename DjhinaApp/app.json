@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Djhina",
+    "slug": "djhina",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F0A1E"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.djhina.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Djhina a besoin de la caméra pour scanner les QR codes d'accès aux événements.",
+        "NSPhotoLibraryUsageDescription": "Djhina a besoin d'accéder à la galerie pour les photos de profil."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F0A1E"
+      },
+      "package": "com.djhina.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Djhina a besoin de la caméra pour scanner les QR codes."
+        }
+      ],
+      "expo-font"
+    ]
+  }
+}
