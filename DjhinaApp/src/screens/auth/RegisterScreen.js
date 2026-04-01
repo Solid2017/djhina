@@ -89,25 +89,33 @@ export default function RegisterScreen({ navigation }) {
   );
 
   return (
-    <LinearGradient colors={['#00071A', '#000F30', '#00071A']} style={styles.container}>
-      <StatusBar style="light" />
-      <View style={styles.bgAccent} />
+    <View style={styles.container}>
+      <StatusBar style="dark" />
+
+      {/* Blue gradient header branding section */}
+      <LinearGradient
+        colors={[Colors.primary, Colors.primaryLight, '#6B8FFF']}
+        style={styles.brandHeader}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.bgAccent} />
+
+        <TouchableOpacity style={styles.backBtn} onPress={() => step === 1 ? navigation.goBack() : setStep(1)}>
+          <Ionicons name="arrow-back" size={22} color="#fff" />
+        </TouchableOpacity>
+
+        <View style={styles.header}>
+          <View style={styles.headerIcon}>
+            <Text style={styles.headerIconText}>D</Text>
+          </View>
+          <Text style={styles.title}>Créer un compte</Text>
+          <Text style={styles.subtitle}>Rejoignez la communauté Djhina</Text>
+        </View>
+      </LinearGradient>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-
-          {/* Header */}
-          <TouchableOpacity style={styles.backBtn} onPress={() => step === 1 ? navigation.goBack() : setStep(1)}>
-            <Ionicons name="arrow-back" size={22} color={Colors.text} />
-          </TouchableOpacity>
-
-          <View style={styles.header}>
-            <LinearGradient colors={[Colors.primary, Colors.accent]} style={styles.headerIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <Text style={styles.headerIconText}>D</Text>
-            </LinearGradient>
-            <Text style={styles.title}>Créer un compte</Text>
-            <Text style={styles.subtitle}>Rejoignez la communauté Djhina</Text>
-          </View>
 
           {/* Step indicator */}
           <View style={styles.stepRow}>
@@ -154,7 +162,7 @@ export default function RegisterScreen({ navigation }) {
                 </View>
 
                 <TouchableOpacity onPress={handleNext} activeOpacity={0.85}>
-                  <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.btn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <LinearGradient colors={[Colors.primary, Colors.primaryLight]} style={styles.btn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                     <Text style={styles.btnText}>Continuer</Text>
                     <Ionicons name="arrow-forward" size={18} color="#fff" />
                   </LinearGradient>
@@ -191,7 +199,7 @@ export default function RegisterScreen({ navigation }) {
                 </View>
 
                 <TouchableOpacity onPress={handleRegister} disabled={loading} activeOpacity={0.85}>
-                  <LinearGradient colors={[Colors.accent, Colors.accentDark]} style={styles.btn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <LinearGradient colors={[Colors.primary, Colors.primaryLight]} style={styles.btn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                     {loading ? (
                       <ActivityIndicator color="#fff" />
                     ) : (
@@ -214,21 +222,37 @@ export default function RegisterScreen({ navigation }) {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  bgAccent: { position: 'absolute', width: 280, height: 280, borderRadius: 140, backgroundColor: Colors.primary, opacity: 0.05, top: -60, right: -60 },
-  scroll: { flexGrow: 1, padding: 24 },
-  backBtn: { marginBottom: 16, marginTop: 8, alignSelf: 'flex-start', padding: 4 },
-  header: { alignItems: 'center', marginBottom: 24 },
-  headerIcon: { width: 60, height: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  container: { flex: 1, backgroundColor: Colors.background },
+  brandHeader: {
+    paddingTop: 52,
+    paddingBottom: 36,
+    paddingHorizontal: 24,
+    overflow: 'hidden',
+  },
+  bgAccent: {
+    position: 'absolute', width: 280, height: 280,
+    borderRadius: 140, backgroundColor: '#fff',
+    opacity: 0.07, top: -60, right: -60,
+  },
+  scroll: { flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 },
+  backBtn: { marginBottom: 16, alignSelf: 'flex-start', padding: 4 },
+  header: { alignItems: 'center' },
+  headerIcon: {
+    width: 60, height: 60, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.35)',
+  },
   headerIconText: { fontSize: 32, fontWeight: '800', color: '#fff' },
-  title: { fontSize: Typography.xl, fontWeight: '700', color: Colors.text, marginBottom: 4 },
-  subtitle: { fontSize: Typography.sm, color: Colors.textSecondary },
-  stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 6 },
+  title: { fontSize: Typography.xl, fontWeight: '700', color: '#fff', marginBottom: 4 },
+  subtitle: { fontSize: Typography.sm, color: 'rgba(255,255,255,0.85)' },
+  stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 0, marginTop: 24, marginBottom: 6 },
   stepDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.surfaceAlt, borderWidth: 2, borderColor: Colors.border },
   stepDotActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   stepLine: { width: 80, height: 2, backgroundColor: Colors.border },
@@ -236,26 +260,44 @@ const styles = StyleSheet.create({
   stepLabels: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 60, marginBottom: 24 },
   stepLabel: { fontSize: Typography.xs, color: Colors.textMuted },
   stepLabelActive: { color: Colors.primary, fontWeight: '600' },
-  card: { backgroundColor: Colors.surface, borderRadius: Radius.xl, padding: 24, borderWidth: 1, borderColor: Colors.border },
-  errorBanner: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: Colors.errorBg, borderRadius: Radius.md, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: `${Colors.error}40` },
+  card: {
+    backgroundColor: Colors.surface, borderRadius: Radius.xl, padding: 24,
+    borderWidth: 1, borderColor: Colors.border,
+    shadowColor: Colors.cardShadow, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1, shadowRadius: 16, elevation: 6,
+  },
+  errorBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: Colors.errorBg, borderRadius: Radius.md,
+    padding: 12, marginBottom: 16,
+    borderWidth: 1, borderColor: `${Colors.error}40`,
+  },
   errorText: { color: Colors.error, fontSize: Typography.sm, flex: 1 },
   fieldGroup: { marginBottom: 16 },
-  label: { fontSize: Typography.sm, color: Colors.textSecondary, marginBottom: 8, fontWeight: '500' },
-  inputWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.inputBg, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 14, height: 50 },
-  inputWrapFocused: { borderColor: Colors.primary, backgroundColor: 'rgba(0,0,255,0.08)' },
+  label: { fontSize: Typography.sm, color: Colors.text, marginBottom: 8, fontWeight: '500' },
+  inputWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.surfaceAlt, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.border,
+    paddingHorizontal: 14, height: 50,
+  },
+  inputWrapFocused: { borderColor: Colors.primary, backgroundColor: Colors.primaryPale },
   inputIcon: { marginRight: 10 },
   input: { color: Colors.text, fontSize: Typography.base },
   countryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  countryChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.inputBg },
-  countryChipActive: { backgroundColor: 'rgba(0,0,255,0.2)', borderColor: Colors.primary },
-  countryChipText: { fontSize: Typography.xs, color: Colors.textSecondary, fontWeight: '500' },
-  countryChipTextActive: { color: Colors.primaryLight },
+  countryChip: {
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.full,
+    borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surfaceAlt,
+  },
+  countryChipActive: { backgroundColor: Colors.primaryPale, borderColor: Colors.primary },
+  countryChipText: { fontSize: Typography.xs, color: Colors.text, fontWeight: '500' },
+  countryChipTextActive: { color: Colors.primary },
   termsRow: { flexDirection: 'row', gap: 8, marginBottom: 20, alignItems: 'flex-start' },
   termsText: { flex: 1, fontSize: Typography.xs, color: Colors.textMuted, lineHeight: 18 },
   termsLink: { color: Colors.primaryLight },
   btn: { height: 52, borderRadius: Radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   btnText: { color: '#fff', fontSize: Typography.base, fontWeight: '700' },
   loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, paddingBottom: 16 },
-  loginText: { color: Colors.textSecondary, fontSize: Typography.sm },
-  loginLink: { color: Colors.accent, fontSize: Typography.sm, fontWeight: '700' },
+  loginText: { color: Colors.textMuted, fontSize: Typography.sm },
+  loginLink: { color: Colors.primary, fontSize: Typography.sm, fontWeight: '700' },
 });

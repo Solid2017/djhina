@@ -171,7 +171,7 @@ export default function EventWallScreen({ navigation }) {
     <View style={styles.container}>
       {/* Sticky header blur */}
       <Animated.View style={[styles.stickyHeader, { opacity: headerOpacity }]}>
-        <LinearGradient colors={['rgba(0,7,26,0.98)', 'rgba(0,7,26,0)']} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={[Colors.background, 'transparent']} style={StyleSheet.absoluteFill} />
       </Animated.View>
 
       <Animated.ScrollView

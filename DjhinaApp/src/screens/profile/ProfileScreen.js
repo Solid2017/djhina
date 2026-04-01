@@ -65,7 +65,7 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <LinearGradient
-          colors={['#000F30', Colors.background]}
+          colors={[Colors.primaryPale, Colors.background]}
           style={styles.header}
         >
           <SafeAreaView edges={['top']}>

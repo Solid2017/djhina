@@ -67,7 +67,7 @@ export default function EventDetailScreen({ route, navigation }) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       {/* Sticky header (appears on scroll) */}
       <Animated.View style={[styles.stickyHeader, { paddingTop: insets.top, opacity: headerOpacity }]}>
-        <LinearGradient colors={['rgba(0,7,26,0.98)', 'rgba(0,7,26,0)']} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={[Colors.background, 'transparent']} style={StyleSheet.absoluteFill} />
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <Ionicons name="arrow-back" size={22} color={Colors.text} />
         </TouchableOpacity>
@@ -356,7 +356,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
       {/* Bottom CTA */}
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 12 }]}>
-        <LinearGradient colors={['rgba(0,7,26,0)', Colors.background]} style={styles.bottomGrad} pointerEvents="none" />
+        <LinearGradient colors={['transparent', Colors.background]} style={styles.bottomGrad} pointerEvents="none" />
         <View style={styles.bottomContent}>
           {selectedTicket && (
             <View style={styles.selectedInfo}>
@@ -398,7 +398,7 @@ export default function EventDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   stickyHeader: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 12 },
-  headerBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,15,48,0.8)', alignItems: 'center', justifyContent: 'center' },
+  headerBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   stickyTitle: { flex: 1, fontSize: Typography.base, fontWeight: '700', color: Colors.text, textAlign: 'center', marginHorizontal: 8 },
   headerRight: { flexDirection: 'row', gap: 8 },
   scroll: { flex: 1 },
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   heroButtons: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16 },
   floatBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,7,26,0.65)', alignItems: 'center', justifyContent: 'center' },
   heroActionsRight: { flexDirection: 'row', gap: 10 },
-  organizerChip: { position: 'absolute', bottom: 16, left: 20, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(0,7,26,0.75)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full },
+  organizerChip: { position: 'absolute', bottom: 16, left: 20, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border },
   orgAvatar: { width: 24, height: 24, borderRadius: 12 },
   orgName: { fontSize: Typography.xs, color: Colors.text, fontWeight: '600' },
   content: { padding: 24, paddingTop: 8 },
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
   commentAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   commentActionText: { fontSize: Typography.xs, color: Colors.textMuted },
   bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0 },
-  bottomGrad: { height: 40, position: 'absolute', bottom: 0, left: 0, right: 0 },
+  bottomGrad: { height: 40, position: 'absolute', top: -40, left: 0, right: 0 },
   bottomContent: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingTop: 12, gap: 12, backgroundColor: Colors.background },
   selectedInfo: { flex: 1 },
   selectedLabel: { fontSize: Typography.xs, color: Colors.textMuted },

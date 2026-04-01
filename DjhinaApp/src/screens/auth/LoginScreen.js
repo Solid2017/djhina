@@ -66,12 +66,28 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#00071A', '#000F30', '#00071A']} style={styles.container}>
-      <StatusBar style="light" />
+    <View style={styles.container}>
+      <StatusBar style="dark" />
 
-      {/* Background decoration */}
-      <View style={styles.bgAccent1} />
-      <View style={styles.bgAccent2} />
+      {/* Blue gradient header branding section */}
+      <LinearGradient
+        colors={[Colors.primary, Colors.primaryLight, '#6B8FFF']}
+        style={styles.brandHeader}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.bgAccent1} />
+        <View style={styles.bgAccent2} />
+
+        {/* Logo */}
+        <View style={styles.logoSection}>
+          <View style={styles.logoIcon}>
+            <Text style={styles.logoLetter}>D</Text>
+          </View>
+          <Text style={styles.logoName}>DJHINA</Text>
+          <Text style={styles.logoTagline}>Événements au Tchad 🇹🇩</Text>
+        </View>
+      </LinearGradient>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -82,20 +98,6 @@ export default function LoginScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo */}
-          <View style={styles.logoSection}>
-            <LinearGradient
-              colors={[Colors.primary, Colors.accent]}
-              style={styles.logoIcon}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Text style={styles.logoLetter}>D</Text>
-            </LinearGradient>
-            <Text style={styles.logoName}>DJHINA</Text>
-            <Text style={styles.logoTagline}>Événements au Tchad 🇹🇩</Text>
-          </View>
-
           {/* Form card */}
           <Animated.View
             style={[styles.card, { transform: [{ translateX: shakeAnim }] }]}
@@ -171,7 +173,7 @@ export default function LoginScreen({ navigation }) {
             {/* Login button */}
             <TouchableOpacity onPress={handleLogin} disabled={loading} activeOpacity={0.85}>
               <LinearGradient
-                colors={[Colors.primary, Colors.primaryDark]}
+                colors={[Colors.primary, Colors.primaryLight]}
                 style={styles.loginBtn}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
@@ -221,41 +223,54 @@ export default function LoginScreen({ navigation }) {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: Colors.background },
+  brandHeader: {
+    paddingTop: 60,
+    paddingBottom: 40,
+    paddingHorizontal: 24,
+    overflow: 'hidden',
+  },
   bgAccent1: {
     position: 'absolute', width: 300, height: 300,
-    borderRadius: 150, backgroundColor: Colors.primary,
-    opacity: 0.06, top: -80, right: -60,
+    borderRadius: 150, backgroundColor: '#fff',
+    opacity: 0.08, top: -80, right: -60,
   },
   bgAccent2: {
     position: 'absolute', width: 250, height: 250,
-    borderRadius: 125, backgroundColor: Colors.accent,
-    opacity: 0.05, bottom: 100, left: -60,
+    borderRadius: 125, backgroundColor: '#fff',
+    opacity: 0.06, bottom: -60, left: -60,
   },
   keyboardView: { flex: 1 },
-  scroll: { flexGrow: 1, padding: 24, justifyContent: 'center' },
-  logoSection: { alignItems: 'center', marginBottom: 32 },
+  scroll: { flexGrow: 1, padding: 24, paddingTop: 0 },
+  logoSection: { alignItems: 'center' },
   logoIcon: {
     width: 72, height: 72, borderRadius: 20,
     alignItems: 'center', justifyContent: 'center',
-    marginBottom: 12, shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5, shadowRadius: 20, elevation: 12,
+    marginBottom: 12,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
   logoLetter: { fontSize: 40, fontWeight: '800', color: '#fff' },
-  logoName: { fontSize: 26, fontWeight: '800', color: Colors.text, letterSpacing: 6, marginBottom: 4 },
-  logoTagline: { fontSize: Typography.sm, color: Colors.textSecondary },
+  logoName: { fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: 6, marginBottom: 4 },
+  logoTagline: { fontSize: Typography.sm, color: 'rgba(255,255,255,0.85)' },
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.xl,
     padding: 24,
     borderWidth: 1,
     borderColor: Colors.border,
+    marginTop: -20,
+    shadowColor: Colors.cardShadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
+    elevation: 6,
   },
   cardTitle: { fontSize: Typography.xl, fontWeight: '700', color: Colors.text, marginBottom: 4 },
   cardSubtitle: { fontSize: Typography.sm, color: Colors.textSecondary, marginBottom: 24 },
@@ -267,14 +282,14 @@ const styles = StyleSheet.create({
   },
   errorText: { color: Colors.error, fontSize: Typography.sm, flex: 1 },
   fieldGroup: { marginBottom: 16 },
-  label: { fontSize: Typography.sm, color: Colors.textSecondary, marginBottom: 8, fontWeight: '500' },
+  label: { fontSize: Typography.sm, color: Colors.text, marginBottom: 8, fontWeight: '500' },
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Colors.inputBg, borderRadius: Radius.md,
+    backgroundColor: Colors.surfaceAlt, borderRadius: Radius.md,
     borderWidth: 1, borderColor: Colors.border,
     paddingHorizontal: 14, height: 50,
   },
-  inputWrapFocused: { borderColor: Colors.primary, backgroundColor: 'rgba(0,0,255,0.08)' },
+  inputWrapFocused: { borderColor: Colors.primary, backgroundColor: Colors.primaryPale },
   inputIcon: { marginRight: 10 },
   input: { flex: 1, color: Colors.text, fontSize: Typography.base },
   eyeBtn: { padding: 4 },
@@ -289,9 +304,9 @@ const styles = StyleSheet.create({
   demoBtn: {
     alignItems: 'center', paddingVertical: 14, marginTop: 10,
   },
-  demoBtnText: { color: Colors.accent, fontSize: Typography.sm, fontWeight: '500' },
+  demoBtnText: { color: Colors.textSecondary, fontSize: Typography.sm, fontWeight: '500' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 8 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.divider },
+  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   dividerText: { color: Colors.textMuted, fontSize: Typography.sm },
   socialRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
   socialBtn: {
@@ -299,14 +314,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center', gap: 8,
     height: 46, borderRadius: Radius.md,
     borderWidth: 1, borderColor: Colors.border,
-    backgroundColor: Colors.inputBg,
+    backgroundColor: Colors.surfaceAlt,
   },
   socialIcon: { fontSize: 16, fontWeight: '800', color: '#EA4335' },
-  socialText: { color: Colors.textSecondary, fontSize: Typography.sm, fontWeight: '500' },
+  socialText: { color: Colors.text, fontSize: Typography.sm, fontWeight: '500' },
   registerRow: {
     flexDirection: 'row', justifyContent: 'center',
     marginTop: 24, paddingBottom: 8,
   },
-  registerText: { color: Colors.textSecondary, fontSize: Typography.sm },
-  registerLink: { color: Colors.accent, fontSize: Typography.sm, fontWeight: '700' },
+  registerText: { color: Colors.textMuted, fontSize: Typography.sm },
+  registerLink: { color: Colors.primary, fontSize: Typography.sm, fontWeight: '700' },
 });

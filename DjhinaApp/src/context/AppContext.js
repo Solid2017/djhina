@@ -92,6 +92,7 @@ function appReducer(state, action) {
       return {
         ...state,
         myTickets: [...state.myTickets, ...newTickets],
+        lastPurchasedTickets: newTickets,   // ← tickets juste achetés, pour affichage immédiat
         events: updatedEvents,
       };
     }
