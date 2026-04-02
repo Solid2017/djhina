@@ -12,7 +12,7 @@ import { Colors, Typography, Spacing, Radius } from '../../theme';
 const COUNTRIES = ['Côte d\'Ivoire', 'Sénégal', 'Mali', 'Burkina Faso', 'Togo', 'Bénin', 'Cameroun', 'Ghana', 'Nigeria'];
 
 export default function RegisterScreen({ navigation }) {
-  const { login } = useApp();
+  const { login, register } = useApp();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', country: 'Côte d\'Ivoire' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,19 +47,20 @@ export default function RegisterScreen({ navigation }) {
     if (err) { setError(err); return; }
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1800));
-    login({
-      id: 'user_' + Date.now(),
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      avatar: `https://i.pravatar.cc/150?u=${form.email}`,
-      role: 'user',
-      country: form.country,
-      joinedAt: new Date().toISOString(),
-      eventsAttended: 0,
+
+    const result = await register({
+      name:     form.name.trim(),
+      email:    form.email.trim(),
+      phone:    form.phone.trim(),
+      password: form.password,
+      country:  form.country,
     });
+
     setLoading(false);
+
+    if (!result.ok) {
+      setError(result.message || 'Erreur lors de la création du compte.');
+    }
   };
 
   const Field = ({ label, icon, value, onChange, placeholder, type = 'default', secure, toggleSecure }) => (

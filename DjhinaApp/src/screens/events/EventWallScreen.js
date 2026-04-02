@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity,
-  TextInput, Image, Dimensions, Animated, RefreshControl,
+  TextInput, Image, Dimensions, Animated, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -75,7 +75,11 @@ function FeaturedCard({ event, onPress, onLike, onSave }) {
           <View>
             <Text style={styles.priceLabel}>À partir de</Text>
             <Text style={styles.price}>
-              {formatPrice(Math.min(...event.tickets.filter(t => !t.soldOut).map(t => t.price)))}
+              {event.minPrice != null
+                ? formatPrice(event.minPrice)
+                : event.tickets?.length
+                  ? formatPrice(Math.min(...event.tickets.filter(t => !t.soldOut).map(t => t.price)))
+                  : '—'}
             </Text>
           </View>
           <LinearGradient
@@ -124,7 +128,11 @@ function EventListCard({ event, onPress, onLike, onSave }) {
         </View>
         <View style={styles.listBottom}>
           <Text style={styles.listPrice}>
-            {formatPrice(Math.min(...event.tickets.filter(t => !t.soldOut).map(t => t.price)))}
+            {event.minPrice != null
+              ? formatPrice(event.minPrice)
+              : event.tickets?.length
+                ? formatPrice(Math.min(...event.tickets.filter(t => !t.soldOut).map(t => t.price)))
+                : '—'}
           </Text>
           <View style={styles.listStats}>
             <Ionicons name="heart" size={11} color={Colors.error} />
@@ -144,7 +152,7 @@ function getCatColor(cat) {
 }
 
 export default function EventWallScreen({ navigation }) {
-  const { state, toggleLike, toggleSave } = useApp();
+  const { state, toggleLike, toggleSave, refreshData } = useApp();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
@@ -154,9 +162,19 @@ export default function EventWallScreen({ navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await new Promise(r => setTimeout(r, 1200));
+    await refreshData();
     setRefreshing(false);
   };
+
+  // Écran de chargement initial
+  if (state.eventsLoading) {
+    return (
+      <View style={[styles.container, { alignItems: 'center', justifyContent: 'center', gap: 16 }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={{ color: Colors.textSecondary, fontSize: 14 }}>Chargement des événements…</Text>
+      </View>
+    );
+  }
 
   const filtered = state.events.filter(e => {
     const matchSearch = !search || e.title.toLowerCase().includes(search.toLowerCase()) || e.city.toLowerCase().includes(search.toLowerCase());

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform, Animated,
-  ActivityIndicator, Dimensions,
+  ActivityIndicator, Dimensions, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -41,28 +41,25 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 1500));
-
-    // Demo: accept any credentials
-    login({
-      id: 'user_' + Date.now(),
-      name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-      email,
-      phone: '+235 66 00 00 00',
-      avatar: 'https://i.pravatar.cc/150?img=35',
-      role: 'user',
-      joinedAt: new Date().toISOString(),
-      eventsAttended: 0,
-      country: 'Côte d\'Ivoire',
-    });
+    const result = await login(email.trim(), password);
     setLoading(false);
+
+    if (!result.ok) {
+      setError(result.message || 'Email ou mot de passe incorrect.');
+      shake();
+    }
   };
 
-  const handleDemoLogin = () => {
+  const handleDemoLogin = async () => {
     setEmail('demo@djhina.td');
-    setPassword('djhina123');
-    setTimeout(() => handleLogin(), 100);
+    setPassword('Demo@1234');
+    setLoading(true);
+    const result = await login('demo@djhina.td', 'Demo@1234');
+    setLoading(false);
+    if (!result.ok) {
+      setError(result.message || 'Compte démo indisponible.');
+      shake();
+    }
   };
 
   return (
@@ -81,10 +78,13 @@ export default function LoginScreen({ navigation }) {
 
         {/* Logo */}
         <View style={styles.logoSection}>
-          <View style={styles.logoIcon}>
-            <Text style={styles.logoLetter}>D</Text>
+          <View style={styles.logoCard}>
+            <Image
+              source={require('../../../assets/logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
-          <Text style={styles.logoName}>DJHINA</Text>
           <Text style={styles.logoTagline}>Événements au Tchad 🇹🇩</Text>
         </View>
       </LinearGradient>
@@ -248,17 +248,23 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
   scroll: { flexGrow: 1, padding: 24, paddingTop: 0 },
   logoSection: { alignItems: 'center' },
-  logoIcon: {
-    width: 72, height: 72, borderRadius: 20,
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
+  logoCard: {
+    width: 140,
+    height: 140,
+    borderRadius: 24,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 12,
+    padding: 8,
   },
-  logoLetter: { fontSize: 40, fontWeight: '800', color: '#fff' },
-  logoName: { fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: 6, marginBottom: 4 },
-  logoTagline: { fontSize: Typography.sm, color: 'rgba(255,255,255,0.85)' },
+  logoImage: { width: '100%', height: '100%' },
+  logoTagline: { fontSize: Typography.sm, color: 'rgba(255,255,255,0.9)', fontWeight: '500', letterSpacing: 0.5 },
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.xl,

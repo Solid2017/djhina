@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, Platform, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Colors, Typography } from '../../theme';
@@ -72,18 +72,11 @@ export default function SplashScreen({ navigation }) {
       <Animated.View
         style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}
       >
-        <LinearGradient
-          colors={[Colors.primary, Colors.primaryLight]}
-          style={styles.logoGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <Text style={styles.logoLetter}>D</Text>
-        </LinearGradient>
-        <View style={styles.logoTextContainer}>
-          <Text style={styles.logoText}>DJHINA</Text>
-          <View style={styles.logoDot} />
-        </View>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </Animated.View>
 
       {/* Tagline */}
@@ -140,41 +133,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 28,
   },
-  logoGradient: {
-    width: 96,
-    height: 96,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    width: 220,
+    height: 220,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.4,
-    shadowRadius: 32,
-    elevation: 20,
-    marginBottom: 16,
-  },
-  logoLetter: {
-    fontSize: 52,
-    fontWeight: '800',
-    color: '#fff',
-    letterSpacing: -2,
-  },
-  logoTextContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  logoText: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: Colors.text,
-    letterSpacing: 8,
-  },
-  logoDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.primary,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
   },
   tagline: {
     fontSize: Typography.base,

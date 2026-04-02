@@ -37,7 +37,7 @@ function SettingItem({ icon, label, value, onPress, toggle, toggleValue, onToggl
   );
 }
 
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen({ navigation, route }) {
   const { state, logout } = useApp();
   const user = state.user;
 
@@ -71,8 +71,8 @@ export default function ProfileScreen({ navigation }) {
           <SafeAreaView edges={['top']}>
             <View style={styles.headerTop}>
               <Text style={styles.headerTitle}>Mon Profil</Text>
-              <TouchableOpacity style={styles.editBtn}>
-                <Ionicons name="create-outline" size={20} color={Colors.primaryLight} />
+              <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('MyQRCode')}>
+                <Ionicons name="qr-code-outline" size={20} color={Colors.primaryLight} />
               </TouchableOpacity>
             </View>
 

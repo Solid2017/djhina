@@ -138,10 +138,10 @@ export default function EventDetailScreen({ route, navigation }) {
               <Ionicons name={event.isLiked ? 'heart' : 'heart-outline'} size={18} color={event.isLiked ? Colors.error : Colors.textMuted} />
               <Text style={styles.statText}>{event.likes}</Text>
             </TouchableOpacity>
-            <View style={styles.statItem}>
+            <TouchableOpacity onPress={() => setActiveTab('commentaires')} style={styles.statItem}>
               <Ionicons name="chatbubble-outline" size={18} color={Colors.textMuted} />
               <Text style={styles.statText}>{event.comments}</Text>
-            </View>
+            </TouchableOpacity>
             <View style={styles.statItem}>
               <Ionicons name="people-outline" size={18} color={Colors.textMuted} />
               <Text style={styles.statText}>{event.registered} inscrits</Text>

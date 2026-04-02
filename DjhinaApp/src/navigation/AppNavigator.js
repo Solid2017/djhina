@@ -22,6 +22,12 @@ import TicketDetailScreen from '../screens/tickets/TicketDetailScreen';
 import ScannerScreen from '../screens/scanner/ScannerScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
+// Messages
+import MessagesScreen from '../screens/messages/MessagesScreen';
+import ConversationScreen from '../screens/messages/ConversationScreen';
+import MyQRCodeScreen from '../screens/messages/MyQRCodeScreen';
+import ScanContactScreen from '../screens/messages/ScanContactScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -108,15 +114,19 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Notifications"
-        component={ProfileScreen}
+        name="Messages"
+        component={MessagesScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              name="notifications"
-              label="Alertes"
-              badge={state.notifications.filter(n => !n.read).length}
+              name="chatbubbles"
+              label="Messages"
+              badge={
+                Object.values(state.conversations || {})
+                  .flat()
+                  .filter(m => m.from !== 'me' && !m.read).length
+              }
             />
           ),
         }}
@@ -157,6 +167,21 @@ function AppStack() {
         name="TicketDetail"
         component={TicketDetailScreen}
         options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="Conversation"
+        component={ConversationScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="MyQRCode"
+        component={MyQRCodeScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen
+        name="ScanContact"
+        component={ScanContactScreen}
+        options={{ animation: 'slide_from_bottom' }}
       />
     </Stack.Navigator>
   );
