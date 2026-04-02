@@ -9,6 +9,7 @@ import {
   normalizeEvent,
   normalizeTicket,
 } from '../services/api';
+import { Alert } from 'react-native';
 
 const AppContext = createContext();
 
@@ -36,6 +37,9 @@ function appReducer(state, action) {
 
     case 'LOGIN':
       return { ...state, isAuthenticated: true, user: action.payload };
+
+    case 'UPDATE_USER':
+      return { ...state, user: { ...state.user, ...action.payload } };
 
     case 'SET_TICKETS':
       return { ...state, myTickets: action.payload };
@@ -338,6 +342,19 @@ export function AppProvider({ children }) {
     dispatch({ type: 'SCAN_TICKET', payload: { qrData, scanResult } });
   }, []);
 
+  // ─── Mise à jour avatar ───────────────────────────────────────────
+  const updateAvatar = useCallback(async (imageUri) => {
+    const res = await authApi.uploadAvatar(imageUri);
+    if (res.ok && res.data?.data?.avatar) {
+      const fullUrl = res.data.data.avatar.startsWith('http')
+        ? res.data.data.avatar
+        : `${require('../config/api').API_BASE}${res.data.data.avatar}`;
+      dispatch({ type: 'UPDATE_USER', payload: { avatar: fullUrl } });
+      return { ok: true, avatar: fullUrl };
+    }
+    return { ok: false, message: res.data?.message || 'Erreur upload avatar.' };
+  }, []);
+
   // ─── Ajouter un contact (depuis scan QR) ─────────────────────────
   const addContact = useCallback((contactData) => {
     dispatch({ type: 'ADD_CONTACT', payload: contactData });
@@ -408,6 +425,7 @@ export function AppProvider({ children }) {
       loadMyTickets,
       addContact,
       sendMessage,
+      updateAvatar,
     }}>
       {children}
     </AppContext.Provider>

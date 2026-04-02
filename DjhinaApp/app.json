@@ -45,6 +45,13 @@
           "cameraPermission": "Djhina a besoin de la caméra pour scanner les QR codes."
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Djhina accède à votre galerie pour changer votre photo de profil.",
+          "cameraPermission": "Djhina accède à votre caméra pour prendre une photo de profil."
+        }
+      ],
       "expo-font"
     ]
   }

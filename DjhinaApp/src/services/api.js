@@ -175,6 +175,37 @@ export const authApi = {
       body:   JSON.stringify(data),
     }),
 
+  // Upload avatar via multipart/form-data
+  uploadAvatar: async (imageUri) => {
+    const token = tokenManager.getToken();
+    const filename = imageUri.split('/').pop();
+    const ext = filename.split('.').pop()?.toLowerCase() || 'jpg';
+    const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
+
+    const formData = new FormData();
+    formData.append('avatar', {
+      uri:  imageUri,
+      name: `avatar_${Date.now()}.${ext}`,
+      type: mimeType,
+    });
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/profile`, {
+        method:  'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Ne pas mettre Content-Type ici : fetch le génère automatiquement avec le boundary
+        },
+        body: formData,
+      });
+      const json = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data: json };
+    } catch (err) {
+      console.warn('[API] uploadAvatar erreur:', err.message);
+      return { ok: false, error: err.message, data: null };
+    }
+  },
+
   changePassword: (currentPassword, newPassword) =>
     apiFetch('/api/auth/change-password', {
       method: 'PUT',
