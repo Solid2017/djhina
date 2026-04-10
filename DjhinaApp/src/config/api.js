@@ -13,5 +13,5 @@
 // ─────────────────────────────────────────────────────────────────────
 
 export const API_BASE = __DEV__
-  ? 'http://172.21.74.121:3000'   // IP locale détectée automatiquement
-  : 'https://api.djhina.td';
+  ? 'http://10.33.48.121:3000'    // IP locale — à mettre à jour si elle change (ipconfig)
+  : 'https://djhina-backend-production.up.railway.app';

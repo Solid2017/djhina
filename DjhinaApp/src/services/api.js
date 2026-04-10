@@ -261,3 +261,20 @@ export const notificationsApi = {
   markAllRead:()   => apiFetch('/api/notifications/read-all',  { method: 'PUT' }),
   remove:     (id) => apiFetch(`/api/notifications/${id}`,     { method: 'DELETE' }),
 };
+
+// ─── Agenda (sessions + speakers) ────────────────────────────────────
+export const agendaApi = {
+  getEventAgenda: (eventId) => apiFetch(`/api/agenda/${eventId}`),
+};
+
+// ─── Messages speakers ────────────────────────────────────────────────
+export const speakerMessagesApi = {
+  getMessages: (speakerId) =>
+    apiFetch(`/api/speakers/${speakerId}/messages`),
+
+  sendMessage: (speakerId, content, event_id) =>
+    apiFetch(`/api/speakers/${speakerId}/messages`, {
+      method: 'POST',
+      body:   JSON.stringify({ content, event_id: event_id || undefined }),
+    }),
+};

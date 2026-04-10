@@ -1,8 +1,8 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Image, TouchableOpacity,
   Dimensions, TextInput, KeyboardAvoidingView, Platform, Animated,
-  Share, FlatList,
+  Share, FlatList, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { useApp } from '../../context/AppContext';
 import { Colors, Typography, Radius, Shadow } from '../../theme';
 import { COMMENTS, formatDate, formatPrice } from '../../data/mockData';
 import PaymentModal from '../../components/PaymentModal';
+import { agendaApi } from '../../services/api';
 
 const { width, height } = Dimensions.get('window');
 const IMG_HEIGHT = 320;
@@ -27,15 +28,48 @@ export default function EventDetailScreen({ route, navigation }) {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState(COMMENTS);
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const [agenda, setAgenda] = useState([]);
+  const [agendaLoading, setAgendaLoading] = useState(false);
+  const [agendaLoaded, setAgendaLoaded] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const headerOpacity = scrollY.interpolate({ inputRange: [IMG_HEIGHT - 100, IMG_HEIGHT], outputRange: [0, 1], extrapolate: 'clamp' });
   const imageScale = scrollY.interpolate({ inputRange: [-100, 0], outputRange: [1.15, 1], extrapolate: 'clamp' });
   const imageTranslate = scrollY.interpolate({ inputRange: [0, IMG_HEIGHT], outputRange: [0, IMG_HEIGHT * 0.5], extrapolate: 'clamp' });
 
+  useEffect(() => {
+    if (activeTab === 'programme' && !agendaLoaded) {
+      setAgendaLoading(true);
+      agendaApi.getEventAgenda(eventId).then(res => {
+        if (res.ok && res.data?.data?.sessions) {
+          setAgenda(res.data.data.sessions);
+        }
+        setAgendaLoading(false);
+        setAgendaLoaded(true);
+      });
+    }
+  }, [activeTab, agendaLoaded, eventId]);
+
   if (!event) return null;
 
   const progress = event.registered / event.capacity;
+
+  const SESSION_TYPE_LABEL = {
+    conference: 'Conférence', workshop: 'Atelier', panel: 'Panel',
+    keynote: 'Keynote', networking: 'Networking', break: 'Pause',
+  };
+  const SESSION_TYPE_COLOR = {
+    conference: Colors.primary, workshop: Colors.accent, panel: '#8B5CF6',
+    keynote: Colors.warning, networking: '#10B981', break: Colors.textMuted,
+  };
+  const getSessionTypeLabel = (t) => SESSION_TYPE_LABEL[t] || t;
+  const getSessionTypeColor = (t) => SESSION_TYPE_COLOR[t] || Colors.primary;
+  const formatSessionTime = (dt) => {
+    if (!dt) return '';
+    try { return new Date(dt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); }
+    catch { return dt; }
+  };
+  const TAB_LABELS = { info: 'Info', programme: 'Programme', billets: 'Billets', commentaires: 'Avis' };
   const availableTickets = event.tickets.filter(t => !t.soldOut);
 
   const handleShare = async () => {
@@ -190,7 +224,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
           {/* Tabs */}
           <View style={styles.tabs}>
-            {['info', 'billets', 'commentaires'].map(tab => (
+            {['info', 'programme', 'billets', 'commentaires'].map(tab => (
               <TouchableOpacity
                 key={tab}
                 style={[styles.tab, activeTab === tab && styles.tabActive]}
@@ -200,7 +234,7 @@ export default function EventDetailScreen({ route, navigation }) {
                   <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={StyleSheet.absoluteFill} borderRadius={Radius.lg} />
                 )}
                 <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {TAB_LABELS[tab] || tab}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -245,6 +279,103 @@ export default function EventDetailScreen({ route, navigation }) {
                   <Text style={styles.urgency}>⚡ Plus que {event.capacity - event.registered} places disponibles !</Text>
                 )}
               </View>
+            </View>
+          )}
+
+          {activeTab === 'programme' && (
+            <View style={styles.tabContent}>
+              {(agendaLoading || !agendaLoaded) ? (
+                <View style={styles.progLoading}>
+                  <ActivityIndicator color={Colors.primary} size="large" />
+                  <Text style={styles.progLoadingText}>Chargement du programme…</Text>
+                </View>
+              ) : agenda.length === 0 ? (
+                <View style={styles.progEmpty}>
+                  <Ionicons name="calendar-outline" size={48} color={Colors.textMuted} />
+                  <Text style={styles.progEmptyText}>Aucune session publiée</Text>
+                </View>
+              ) : (
+                agenda.map((session) => (
+                  <View key={session.id} style={styles.sessionCard}>
+                    {/* Type badge + room */}
+                    <View style={styles.sessionMeta}>
+                      <View style={[styles.sessionTypeBadge, { backgroundColor: getSessionTypeColor(session.type) + '25' }]}>
+                        <Text style={[styles.sessionTypeText, { color: getSessionTypeColor(session.type) }]}>
+                          {getSessionTypeLabel(session.type)}
+                        </Text>
+                      </View>
+                      {session.room ? (
+                        <View style={styles.sessionRoom}>
+                          <Ionicons name="location-outline" size={11} color={Colors.textMuted} />
+                          <Text style={styles.sessionRoomText}>{session.room}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+
+                    <Text style={styles.sessionTitle}>{session.title}</Text>
+
+                    {session.start_time ? (
+                      <View style={styles.sessionTimeRow}>
+                        <Ionicons name="time-outline" size={13} color={Colors.textSecondary} />
+                        <Text style={styles.sessionTimeText}>
+                          {formatSessionTime(session.start_time)}
+                          {session.end_time ? ` — ${formatSessionTime(session.end_time)}` : ''}
+                        </Text>
+                      </View>
+                    ) : null}
+
+                    {session.description ? (
+                      <Text style={styles.sessionDesc} numberOfLines={2}>{session.description}</Text>
+                    ) : null}
+
+                    {/* Speakers list */}
+                    {session.speakers && session.speakers.length > 0 && (
+                      <View style={styles.speakersWrap}>
+                        <Text style={styles.speakersLabel}>Intervenant(s)</Text>
+                        {session.speakers.map(sp => (
+                          <TouchableOpacity
+                            key={sp.id}
+                            style={styles.speakerChip}
+                            activeOpacity={0.75}
+                            onPress={() => navigation.navigate('SpeakerChat', {
+                              speaker: {
+                                id: sp.id,
+                                name: sp.name,
+                                photo: sp.photo,
+                                job_title: sp.job_title,
+                                company: sp.company,
+                              },
+                              eventTitle: event.title,
+                            })}
+                          >
+                            {sp.photo ? (
+                              <Image source={{ uri: sp.photo }} style={styles.speakerPhoto} />
+                            ) : (
+                              <LinearGradient colors={[Colors.primary, Colors.primaryLight]} style={styles.speakerPhotoGrad}>
+                                <Text style={styles.speakerInitial}>{sp.name?.[0]?.toUpperCase() || '?'}</Text>
+                              </LinearGradient>
+                            )}
+                            <View style={styles.speakerInfo}>
+                              <Text style={styles.speakerName} numberOfLines={1}>{sp.name}</Text>
+                              {(sp.job_title || sp.company) ? (
+                                <Text style={styles.speakerTitle} numberOfLines={1}>
+                                  {sp.job_title}{sp.job_title && sp.company ? ' · ' : ''}{sp.company}
+                                </Text>
+                              ) : null}
+                            </View>
+                            <View style={styles.chatBtnWrap}>
+                              <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.chatBtnGrad}>
+                                <Ionicons name="chatbubble" size={14} color="#fff" />
+                                <Text style={styles.chatBtnText}>Chat</Text>
+                              </LinearGradient>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                ))
+              )}
             </View>
           )}
 
@@ -476,6 +607,34 @@ const styles = StyleSheet.create({
   commentActions: { flexDirection: 'row', gap: 16, marginTop: 8 },
   commentAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   commentActionText: { fontSize: Typography.xs, color: Colors.textMuted },
+  // ── Programme tab styles ──────────────────────────────────────
+  progLoading: { alignItems: 'center', paddingVertical: 48, gap: 14 },
+  progLoadingText: { fontSize: Typography.sm, color: Colors.textMuted },
+  progEmpty: { alignItems: 'center', paddingVertical: 48, gap: 12 },
+  progEmptyText: { fontSize: Typography.sm, color: Colors.textMuted },
+  sessionCard: { backgroundColor: Colors.surface, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border, padding: 14, marginBottom: 14, gap: 6 },
+  sessionMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  sessionTypeBadge: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: Radius.full },
+  sessionTypeText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.5 },
+  sessionRoom: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  sessionRoomText: { fontSize: 11, color: Colors.textMuted },
+  sessionTitle: { fontSize: Typography.md, fontWeight: '700', color: Colors.text },
+  sessionTimeRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  sessionTimeText: { fontSize: Typography.sm, color: Colors.textSecondary },
+  sessionDesc: { fontSize: Typography.xs, color: Colors.textSecondary, lineHeight: 18 },
+  speakersWrap: { marginTop: 8, gap: 8 },
+  speakersLabel: { fontSize: Typography.xs, fontWeight: '600', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
+  speakerChip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.surfaceAlt, borderRadius: Radius.lg, padding: 10, borderWidth: 1, borderColor: Colors.border },
+  speakerPhoto: { width: 40, height: 40, borderRadius: 20 },
+  speakerPhotoGrad: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  speakerInitial: { fontSize: Typography.base, fontWeight: '800', color: '#fff' },
+  speakerInfo: { flex: 1, gap: 2 },
+  speakerName: { fontSize: Typography.sm, fontWeight: '700', color: Colors.text },
+  speakerTitle: { fontSize: Typography.xs, color: Colors.textSecondary },
+  chatBtnWrap: { borderRadius: Radius.md, overflow: 'hidden' },
+  chatBtnGrad: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7 },
+  chatBtnText: { fontSize: Typography.xs, fontWeight: '700', color: '#fff' },
+  // ─────────────────────────────────────────────────────────────
   bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0 },
   bottomGrad: { height: 40, position: 'absolute', top: -40, left: 0, right: 0 },
   bottomContent: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingTop: 12, gap: 12, backgroundColor: Colors.background },

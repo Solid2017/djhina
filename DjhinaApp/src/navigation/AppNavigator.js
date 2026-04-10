@@ -25,6 +25,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 // Messages
 import MessagesScreen from '../screens/messages/MessagesScreen';
 import ConversationScreen from '../screens/messages/ConversationScreen';
+import SpeakerChatScreen from '../screens/messages/SpeakerChatScreen';
 import MyQRCodeScreen from '../screens/messages/MyQRCodeScreen';
 import ScanContactScreen from '../screens/messages/ScanContactScreen';
 
@@ -171,6 +172,11 @@ function AppStack() {
       <Stack.Screen
         name="Conversation"
         component={ConversationScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="SpeakerChat"
+        component={SpeakerChatScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen
