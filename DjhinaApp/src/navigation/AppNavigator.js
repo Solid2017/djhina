@@ -22,6 +22,13 @@ import TicketDetailScreen from '../screens/tickets/TicketDetailScreen';
 import ScannerScreen from '../screens/scanner/ScannerScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
+// Messages
+import MessagesScreen from '../screens/messages/MessagesScreen';
+import ConversationScreen from '../screens/messages/ConversationScreen';
+import SpeakerChatScreen from '../screens/messages/SpeakerChatScreen';
+import MyQRCodeScreen from '../screens/messages/MyQRCodeScreen';
+import ScanContactScreen from '../screens/messages/ScanContactScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -30,7 +37,7 @@ function TabBarIcon({ focused, name, label, badge }) {
     <View style={styles.tabItem}>
       {focused && (
         <LinearGradient
-          colors={['rgba(0,0,255,0.25)', 'transparent']}
+          colors={[Colors.primaryPale, 'transparent']}
           style={styles.tabActiveGlow}
         />
       )}
@@ -38,7 +45,7 @@ function TabBarIcon({ focused, name, label, badge }) {
         <Ionicons
           name={focused ? name : `${name}-outline`}
           size={22}
-          color={focused ? Colors.accent : Colors.textMuted}
+          color={focused ? Colors.primary : Colors.textMuted}
         />
         {badge > 0 && (
           <View style={styles.badge}>
@@ -64,7 +71,7 @@ function MainTabs() {
         tabBarStyle: styles.tabBar,
         tabBarBackground: () => (
           <LinearGradient
-            colors={['rgba(0,15,48,0.97)', 'rgba(0,7,26,0.99)']}
+            colors={[Colors.surface, Colors.surface]}
             style={StyleSheet.absoluteFill}
           />
         ),
@@ -108,15 +115,19 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Notifications"
-        component={ProfileScreen}
+        name="Messages"
+        component={MessagesScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              name="notifications"
-              label="Alertes"
-              badge={state.notifications.filter(n => !n.read).length}
+              name="chatbubbles"
+              label="Messages"
+              badge={
+                Object.values(state.conversations || {})
+                  .flat()
+                  .filter(m => m.from !== 'me' && !m.read).length
+              }
             />
           ),
         }}
@@ -158,6 +169,26 @@ function AppStack() {
         component={TicketDetailScreen}
         options={{ animation: 'slide_from_right' }}
       />
+      <Stack.Screen
+        name="Conversation"
+        component={ConversationScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="SpeakerChat"
+        component={SpeakerChatScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="MyQRCode"
+        component={MyQRCodeScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen
+        name="ScanContact"
+        component={ScanContactScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -180,9 +211,13 @@ const styles = StyleSheet.create({
     right: 0,
     height: Platform.OS === 'ios' ? 85 : 68,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,255,0.2)',
+    borderTopColor: Colors.border,
     backgroundColor: 'transparent',
     elevation: 0,
+    shadowColor: Colors.cardShadow,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
   },
   tabItem: {
     alignItems: 'center',
@@ -196,6 +231,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
+    backgroundColor: 'transparent',
   },
   tabIconWrap: {
     width: 40,
@@ -205,7 +241,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   tabIconWrapActive: {
-    backgroundColor: 'rgba(0,0,255,0.15)',
+    backgroundColor: Colors.primaryPale,
   },
   tabLabel: {
     fontSize: 10,
@@ -214,7 +250,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tabLabelActive: {
-    color: Colors.accent,
+    color: Colors.primary,
+    fontWeight: '700',
   },
   badge: {
     position: 'absolute',

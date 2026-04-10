@@ -1,122 +1,140 @@
+// ─────────────────────────────────────────────────────────────
+//  DJHINA — THÈME CLAIR  (Bleu #0000FF · Tchad)
+// ─────────────────────────────────────────────────────────────
+
 export const Colors = {
-  // Core palette — Bleu Tchad
-  primary: '#0000FF',
-  primaryLight: '#4D6FFF',
-  primaryDark: '#0000CC',
-  accent: '#F59E0B',          // Or ambre
-  accentLight: '#FCD34D',
-  accentDark: '#D97706',
+  // ── Primaires
+  primary:       '#0000FF',
+  primaryLight:  '#4D6FFF',
+  primaryDark:   '#0000CC',
+  primaryPale:   '#EEF0FF',   // bg très clair pour chips/badges
 
-  // Backgrounds — Navy profond
-  background: '#00071A',
-  surface: '#000F30',
-  surfaceAlt: '#001247',
-  overlay: 'rgba(0,7,26,0.88)',
+  // ── Accent (or ambre)
+  accent:        '#F59E0B',
+  accentLight:   '#FCD34D',
+  accentDark:    '#D97706',
 
-  // Texts
-  text: '#F0F4FF',
-  textSecondary: '#7BA3FF',
-  textMuted: '#3D5FA8',
-  textDark: '#00071A',
+  // ── Backgrounds CLAIRS
+  background:    '#F4F6FF',   // fond principal — blanc bleuté
+  surface:       '#FFFFFF',   // cartes, modals
+  surfaceAlt:    '#EEF2FF',   // second plan, inputs
+  overlay:       'rgba(10,17,60,0.72)',
 
-  // Status
-  success: '#10B981',
-  successBg: 'rgba(16,185,129,0.15)',
-  error: '#EF4444',
-  errorBg: 'rgba(239,68,68,0.15)',
-  warning: '#F59E0B',
-  warningBg: 'rgba(245,158,11,0.15)',
-  info: '#3B82F6',
-  infoBg: 'rgba(59,130,246,0.15)',
+  // ── Textes
+  text:          '#0A1128',   // noir profond
+  textSecondary: '#3A5FC8',   // bleu moyen
+  textMuted:     '#7B90C4',   // gris-bleu
+  textLight:     '#B0BEDD',   // très clair
+  textDark:      '#0A1128',
 
-  // UI
-  border: 'rgba(77,111,255,0.25)',
-  borderActive: '#0000FF',
-  divider: 'rgba(77,111,255,0.12)',
-  inputBg: 'rgba(0,15,48,0.9)',
-  shadow: 'rgba(0,0,255,0.3)',
+  // ── Status
+  success:       '#059669',
+  successBg:     'rgba(5,150,105,.12)',
+  error:         '#DC2626',
+  errorBg:       'rgba(220,38,38,.12)',
+  warning:       '#D97706',
+  warningBg:     'rgba(217,119,6,.12)',
+  info:          '#2563EB',
+  infoBg:        'rgba(37,99,235,.12)',
 
-  // Drapeau du Tchad (bleu, jaune, rouge)
-  tchadBlue: '#003082',
-  tchadYellow: '#FECB00',
-  tchadRed: '#C60C30',
+  // ── UI
+  border:        'rgba(0,0,255,.12)',
+  borderActive:  '#0000FF',
+  divider:       'rgba(0,0,255,.08)',
+  inputBg:       '#F0F4FF',
+  shadow:        'rgba(0,0,255,.15)',
+  cardShadow:    'rgba(0,0,120,.08)',
 
-  // Catégories
-  music: '#EC4899',
-  sport: '#14B8A6',
-  culture: '#0000FF',
-  business: '#3B82F6',
-  food: '#F97316',
-  festival: '#F59E0B',
-  fashion: '#A855F7',
-  conference: '#06B6D4',
+  // ── Drapeau du Tchad
+  tchadBlue:     '#003082',
+  tchadYellow:   '#FECB00',
+  tchadRed:      '#C60C30',
 
-  // Mobile Money Tchad
-  airtelMoney: '#E40520',
-  moovMoney: '#0055A4',
+  // ── Catégories
+  music:         '#DB2777',
+  sport:         '#0D9488',
+  culture:       '#2563EB',
+  business:      '#1D4ED8',
+  food:          '#EA580C',
+  festival:      '#D97706',
+  fashion:       '#7C3AED',
+  conference:    '#0891B2',
+
+  // ── Mobile Money
+  airtelMoney:   '#E40520',
+  moovMoney:     '#0055A4',
 };
 
 export const Typography = {
-  xs: 11,
-  sm: 13,
-  base: 15,
-  md: 17,
-  lg: 20,
-  xl: 24,
-  xxl: 30,
-  xxxl: 38,
+  xs:       11,
+  sm:       13,
+  base:     15,
+  md:       17,
+  lg:       20,
+  xl:       24,
+  xxl:      30,
+  xxxl:     38,
 
-  regular: '400',
-  medium: '500',
+  regular:  '400',
+  medium:   '500',
   semibold: '600',
-  bold: '700',
-  extrabold: '800',
+  bold:     '700',
+  extrabold:'800',
 
-  tight: 1.2,
-  normal: 1.5,
-  relaxed: 1.7,
+  tight:    1.2,
+  normal:   1.5,
+  relaxed:  1.7,
 };
 
 export const Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
+  xs:   4,
+  sm:   8,
+  md:   12,
   base: 16,
-  lg: 20,
-  xl: 24,
-  xxl: 32,
+  lg:   20,
+  xl:   24,
+  xxl:  32,
   xxxl: 48,
 };
 
 export const Radius = {
-  sm: 6,
-  md: 10,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
+  sm:   6,
+  md:   10,
+  lg:   16,
+  xl:   24,
+  xxl:  32,
   full: 999,
 };
 
 export const Shadow = {
   soft: {
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowColor:   '#0000AA',
+    shadowOffset:  { width: 0, height: 3 },
+    shadowOpacity: 0.10,
+    shadowRadius:  10,
+    elevation:     4,
   },
   medium: {
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowColor:   '#0000AA',
+    shadowOffset:  { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius:  18,
+    elevation:     8,
   },
   strong: {
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.4,
-    shadowRadius: 28,
-    elevation: 16,
+    shadowColor:   '#0000AA',
+    shadowOffset:  { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius:  24,
+    elevation:     14,
   },
+};
+
+// Export default pour les composants qui importent `theme`
+export default {
+  colors:     Colors,
+  typography: Typography,
+  spacing:    Spacing,
+  radius:     Radius,
+  shadow:     Shadow,
 };

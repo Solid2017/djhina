@@ -22,7 +22,7 @@ function TicketCard({ ticket, onPress }) {
     <TouchableOpacity onPress={onPress} activeOpacity={0.88} style={styles.ticketCard}>
       {/* Top: Event info */}
       <LinearGradient
-        colors={isActive ? [ticket.ticketColor + 'CC', ticket.ticketColor + '88'] : ['#2A1F4A', '#000F30']}
+        colors={isActive ? [ticket.ticketColor + 'CC', ticket.ticketColor + '88'] : [Colors.surfaceAlt, Colors.surface]}
         style={styles.ticketTop}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -49,15 +49,15 @@ function TicketCard({ ticket, onPress }) {
         <Image source={{ uri: ticket.eventCover }} style={styles.eventThumb} />
 
         <View style={styles.ticketTopInfo}>
-          <Text style={styles.ticketTypeBadge}>{ticket.ticketType}</Text>
-          <Text style={styles.ticketEventName} numberOfLines={2}>{ticket.eventTitle}</Text>
+          <Text style={[styles.ticketTypeBadge, !isActive && { color: Colors.textSecondary, backgroundColor: Colors.primaryPale }]}>{ticket.ticketType}</Text>
+          <Text style={[styles.ticketEventName, !isActive && { color: Colors.text }]} numberOfLines={2}>{ticket.eventTitle}</Text>
           <View style={styles.ticketMeta}>
-            <Ionicons name="calendar-outline" size={12} color="rgba(255,255,255,0.8)" />
-            <Text style={styles.ticketMetaText}>{ticket.eventDate} · {ticket.eventTime}</Text>
+            <Ionicons name="calendar-outline" size={12} color={isActive ? 'rgba(255,255,255,0.8)' : Colors.textMuted} />
+            <Text style={[styles.ticketMetaText, !isActive && { color: Colors.textMuted }]}>{ticket.eventDate} · {ticket.eventTime}</Text>
           </View>
           <View style={styles.ticketMeta}>
-            <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.8)" />
-            <Text style={styles.ticketMetaText} numberOfLines={1}>{ticket.eventLocation}</Text>
+            <Ionicons name="location-outline" size={12} color={isActive ? 'rgba(255,255,255,0.8)' : Colors.textMuted} />
+            <Text style={[styles.ticketMetaText, !isActive && { color: Colors.textMuted }]} numberOfLines={1}>{ticket.eventLocation}</Text>
           </View>
         </View>
       </LinearGradient>

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Djhina",
-    "slug": "djhina",
+    "slug": "djhina-rijasi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,7 +19,8 @@
       "bundleIdentifier": "com.djhina.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Djhina a besoin de la caméra pour scanner les QR codes d'accès aux événements.",
-        "NSPhotoLibraryUsageDescription": "Djhina a besoin d'accéder à la galerie pour les photos de profil."
+        "NSPhotoLibraryUsageDescription": "Djhina a besoin d'accéder à la galerie pour les photos de profil.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -29,10 +30,11 @@
       },
       "package": "com.djhina.app",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "VIBRATE"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.VIBRATE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -45,7 +47,20 @@
           "cameraPermission": "Djhina a besoin de la caméra pour scanner les QR codes."
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Djhina accède à votre galerie pour changer votre photo de profil.",
+          "cameraPermission": "Djhina accède à votre caméra pour prendre une photo de profil."
+        }
+      ],
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0b4f3d03-275a-4bed-8ff3-6e26fff8e686"
+      }
+    },
+    "owner": "igotech"
   }
 }

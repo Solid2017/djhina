@@ -63,8 +63,8 @@ export default function PaymentModal({ visible, onClose, event, ticketType, navi
   const handlePayment = async () => {
     if (!otp || otp.length < 4) return;
     setLoading(true);
-    await new Promise(r => setTimeout(r, 2000));
-    purchaseTicket(
+
+    const result = await purchaseTicket(
       event,
       ticketType,
       quantity,
@@ -72,7 +72,18 @@ export default function PaymentModal({ visible, onClose, event, ticketType, navi
       phone,
       state.user?.name || 'Participant'
     );
+
     setLoading(false);
+
+    if (result?.ok === false) {
+      // Afficher l'erreur API dans la bannière OTP
+      setOtpSent(false);
+      setOtp('');
+      // On remonte à l'étape paiement avec le message d'erreur
+      alert(result.message || 'Erreur lors de l\'achat. Réessayez.');
+      return;
+    }
+
     setStep(STEPS.success);
   };
 

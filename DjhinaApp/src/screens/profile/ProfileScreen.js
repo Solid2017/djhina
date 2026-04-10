@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Switch, Alert,
+  Image, Switch, Alert, ActivityIndicator, Modal, Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import { useApp } from '../../context/AppContext';
 import { Colors, Typography, Radius } from '../../theme';
 
@@ -37,13 +38,56 @@ function SettingItem({ icon, label, value, onPress, toggle, toggleValue, onToggl
   );
 }
 
-export default function ProfileScreen({ navigation }) {
-  const { state, logout } = useApp();
+export default function ProfileScreen({ navigation, route }) {
+  const { state, logout, updateAvatar } = useApp();
   const user = state.user;
 
   const [notifEvents, setNotifEvents] = useState(true);
   const [notifTickets, setNotifTickets] = useState(true);
   const [biometric, setBiometric] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+
+  const handlePickImage = async (fromCamera) => {
+    setShowAvatarModal(false);
+
+    // Demander la permission
+    const permFn = fromCamera
+      ? ImagePicker.requestCameraPermissionsAsync
+      : ImagePicker.requestMediaLibraryPermissionsAsync;
+    const { status } = await permFn();
+
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission refusée',
+        fromCamera
+          ? 'Autorisez l\'accès à la caméra dans les réglages.'
+          : 'Autorisez l\'accès à la galerie dans les réglages.'
+      );
+      return;
+    }
+
+    const launchFn = fromCamera
+      ? ImagePicker.launchCameraAsync
+      : ImagePicker.launchImageLibraryAsync;
+
+    const result = await launchFn({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (result.canceled || !result.assets?.[0]?.uri) return;
+
+    setAvatarLoading(true);
+    const res = await updateAvatar(result.assets[0].uri);
+    setAvatarLoading(false);
+
+    if (!res.ok) {
+      Alert.alert('Erreur', res.message || 'Impossible de mettre à jour la photo.');
+    }
+  };
 
   const totalSpent = state.myTickets.reduce((sum, t) => sum + t.price, 0);
   const eventsAttended = state.myTickets.filter(t => t.status === 'used').length;
@@ -62,23 +106,87 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+
+      {/* ── Modal choix photo ── */}
+      <Modal
+        visible={showAvatarModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowAvatarModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setShowAvatarModal(false)}
+        >
+          <View style={styles.avatarModalSheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Photo de profil</Text>
+            <Text style={styles.sheetSub}>Choisissez comment mettre à jour votre photo</Text>
+
+            <TouchableOpacity
+              style={styles.sheetOption}
+              onPress={() => handlePickImage(true)}
+            >
+              <LinearGradient colors={[Colors.primary + '20', Colors.primary + '08']} style={StyleSheet.absoluteFill} borderRadius={Radius.lg} />
+              <View style={[styles.sheetOptionIcon, { backgroundColor: Colors.primary + '20' }]}>
+                <Ionicons name="camera" size={22} color={Colors.primary} />
+              </View>
+              <View style={styles.sheetOptionText}>
+                <Text style={styles.sheetOptionTitle}>Prendre une photo</Text>
+                <Text style={styles.sheetOptionSub}>Ouvrir la caméra</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetOption}
+              onPress={() => handlePickImage(false)}
+            >
+              <LinearGradient colors={[Colors.accent + '20', Colors.accent + '08']} style={StyleSheet.absoluteFill} borderRadius={Radius.lg} />
+              <View style={[styles.sheetOptionIcon, { backgroundColor: Colors.accent + '20' }]}>
+                <Ionicons name="images" size={22} color={Colors.accent} />
+              </View>
+              <View style={styles.sheetOptionText}>
+                <Text style={styles.sheetOptionTitle}>Choisir depuis la galerie</Text>
+                <Text style={styles.sheetOptionSub}>Parcourir vos photos</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sheetOption, { marginTop: 4 }]}
+              onPress={() => setShowAvatarModal(false)}
+            >
+              <Text style={[styles.sheetOptionTitle, { color: Colors.error, textAlign: 'center', width: '100%' }]}>
+                Annuler
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <LinearGradient
-          colors={['#000F30', Colors.background]}
+          colors={[Colors.primaryPale, Colors.background]}
           style={styles.header}
         >
           <SafeAreaView edges={['top']}>
             <View style={styles.headerTop}>
               <Text style={styles.headerTitle}>Mon Profil</Text>
-              <TouchableOpacity style={styles.editBtn}>
-                <Ionicons name="create-outline" size={20} color={Colors.primaryLight} />
+              <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('MyQRCode')}>
+                <Ionicons name="qr-code-outline" size={20} color={Colors.primaryLight} />
               </TouchableOpacity>
             </View>
 
             {/* User card */}
             <View style={styles.userCard}>
-              <View style={styles.avatarWrap}>
+              <TouchableOpacity
+                style={styles.avatarWrap}
+                onPress={() => setShowAvatarModal(true)}
+                activeOpacity={0.85}
+              >
                 <Image
                   source={{ uri: user?.avatar || 'https://i.pravatar.cc/150?img=35' }}
                   style={styles.avatar}
@@ -87,10 +195,16 @@ export default function ProfileScreen({ navigation }) {
                   colors={[Colors.primary, Colors.accent]}
                   style={styles.avatarBorder}
                 />
-                <TouchableOpacity style={styles.avatarEdit}>
+                {/* Overlay chargement */}
+                {avatarLoading && (
+                  <View style={styles.avatarLoadingOverlay}>
+                    <ActivityIndicator color="#fff" size="small" />
+                  </View>
+                )}
+                <View style={styles.avatarEdit}>
                   <Ionicons name="camera" size={14} color="#fff" />
-                </TouchableOpacity>
-              </View>
+                </View>
+              </TouchableOpacity>
 
               <Text style={styles.userName}>{user?.name || 'Utilisateur'}</Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
@@ -251,6 +365,17 @@ const styles = StyleSheet.create({
   avatarBorder: { position: 'absolute', top: -3, left: -3, right: -3, bottom: -3, borderRadius: 48, zIndex: -1 },
   avatar: { width: 88, height: 88, borderRadius: 44, borderWidth: 3, borderColor: Colors.background },
   avatarEdit: { position: 'absolute', bottom: 0, right: 0, backgroundColor: Colors.primary, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.background },
+  avatarLoadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  avatarModalSheet: { backgroundColor: Colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: Platform.OS === 'ios' ? 40 : 28, gap: 12, borderWidth: 1, borderColor: Colors.border },
+  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 8 },
+  sheetTitle: { fontSize: Typography.lg, fontWeight: '800', color: Colors.text, textAlign: 'center' },
+  sheetSub: { fontSize: Typography.sm, color: Colors.textSecondary, textAlign: 'center', marginBottom: 4 },
+  sheetOption: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: Colors.surfaceAlt, borderRadius: Radius.lg, padding: 16, overflow: 'hidden', borderWidth: 1, borderColor: Colors.border },
+  sheetOptionIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  sheetOptionText: { flex: 1 },
+  sheetOptionTitle: { fontSize: Typography.base, fontWeight: '700', color: Colors.text },
+  sheetOptionSub: { fontSize: Typography.xs, color: Colors.textMuted, marginTop: 2 },
   userName: { fontSize: Typography.xl, fontWeight: '800', color: Colors.text },
   userEmail: { fontSize: Typography.sm, color: Colors.textSecondary },
   userMeta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
