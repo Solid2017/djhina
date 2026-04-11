@@ -104,17 +104,6 @@ export default function ProfileScreen({ navigation, route }) {
     } catch (e) {}
   };
 
-  const handleChangePassword = () => {
-    Alert.alert(
-      'Changer le mot de passe',
-      'Un email de réinitialisation sera envoyé à :\n' + user?.email,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Envoyer', onPress: () => Alert.alert('Email envoyé', 'Vérifiez votre boîte mail pour réinitialiser votre mot de passe.') },
-      ]
-    );
-  };
-
   const handleAbout = () => {
     Alert.alert(
       'Djhina v1.1.0',
@@ -293,19 +282,19 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Compte</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="person-outline" label="Informations personnelles" value={user?.name} onPress={() => soon('La modification du profil')} />
-            <SettingItem icon="call-outline" label="Téléphone" value={user?.phone || '+235 66 00 00 00'} onPress={() => soon('La modification du téléphone')} />
-            <SettingItem icon="mail-outline" label="Email" value={user?.email} onPress={() => soon('La modification de l\'email')} />
-            <SettingItem icon="location-outline" label="Pays" value={user?.country} onPress={() => soon('La modification du pays')} />
+            <SettingItem icon="person-outline" label="Informations personnelles" value={user?.name} onPress={() => navigation.navigate('EditProfile')} />
+            <SettingItem icon="call-outline" label="Téléphone" value={user?.phone || '+235 66 00 00 00'} onPress={() => navigation.navigate('EditProfile')} />
+            <SettingItem icon="mail-outline" label="Email" value={user?.email} onPress={() => navigation.navigate('EditProfile')} />
+            <SettingItem icon="location-outline" label="Pays" value={user?.country} onPress={() => navigation.navigate('EditProfile')} />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Paiements</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="wallet-outline" label="Méthodes de paiement" onPress={() => soon('Les méthodes de paiement')} />
-            <SettingItem icon="receipt-outline" label="Historique des transactions" onPress={() => navigation.navigate('MyTickets')} />
-            <SettingItem icon="download-outline" label="Télécharger mes factures" onPress={() => soon('Le téléchargement des factures')} />
+            <SettingItem icon="wallet-outline" label="Méthodes de paiement" onPress={() => soon('Les méthodes de paiement mobile')} />
+            <SettingItem icon="receipt-outline" label="Historique des transactions" onPress={() => navigation.navigate('TransactionHistory')} />
+            <SettingItem icon="download-outline" label="Télécharger mes factures" onPress={() => navigation.navigate('TransactionHistory')} />
           </View>
         </View>
 
@@ -334,7 +323,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sécurité</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" onPress={handleChangePassword} />
+            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" onPress={() => navigation.navigate('ChangePassword')} />
             <SettingItem
               icon="finger-print-outline"
               label="Authentification biométrique"
@@ -343,7 +332,7 @@ export default function ProfileScreen({ navigation, route }) {
               onToggle={setBiometric}
               arrow={false}
             />
-            <SettingItem icon="shield-outline" label="Confidentialité" onPress={() => soon('Les paramètres de confidentialité')} />
+            <SettingItem icon="shield-outline" label="Confidentialité" onPress={() => navigation.navigate('PrivacySettings')} />
           </View>
         </View>
 

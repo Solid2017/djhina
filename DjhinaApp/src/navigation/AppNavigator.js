@@ -29,6 +29,12 @@ import SpeakerChatScreen from '../screens/messages/SpeakerChatScreen';
 import MyQRCodeScreen from '../screens/messages/MyQRCodeScreen';
 import ScanContactScreen from '../screens/messages/ScanContactScreen';
 
+// Profile Screens
+import TransactionHistoryScreen from '../screens/profile/TransactionHistoryScreen';
+import ChangePasswordScreen from '../screens/profile/ChangePasswordScreen';
+import PrivacySettingsScreen from '../screens/profile/PrivacySettingsScreen';
+import EditProfileScreen from '../screens/profile/EditProfileScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -188,6 +194,26 @@ function AppStack() {
         name="ScanContact"
         component={ScanContactScreen}
         options={{ animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen
+        name="TransactionHistory"
+        component={TransactionHistoryScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="PrivacySettings"
+        component={PrivacySettingsScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>
   );
