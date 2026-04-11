@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Switch, Alert, ActivityIndicator, Modal, Platform,
+  Image, Switch, Alert, ActivityIndicator, Modal, Platform, Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -92,6 +92,8 @@ export default function ProfileScreen({ navigation, route }) {
   const totalSpent = state.myTickets.reduce((sum, t) => sum + t.price, 0);
   const eventsAttended = state.myTickets.filter(t => t.status === 'used').length;
   const savedEvents = state.events.filter(e => e.isSaved).length;
+
+  const soon = (feature) => Alert.alert('Bientôt disponible', `${feature} sera disponible dans une prochaine version.`);
 
   const handleLogout = () => {
     Alert.alert(
@@ -263,19 +265,19 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Compte</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="person-outline" label="Informations personnelles" value={user?.name} />
-            <SettingItem icon="call-outline" label="Téléphone" value={user?.phone || '+235 66 00 00 00'} />
-            <SettingItem icon="mail-outline" label="Email" value={user?.email} />
-            <SettingItem icon="location-outline" label="Pays" value={user?.country} />
+            <SettingItem icon="person-outline" label="Informations personnelles" value={user?.name} onPress={() => soon('La modification du profil')} />
+            <SettingItem icon="call-outline" label="Téléphone" value={user?.phone || '+235 66 00 00 00'} onPress={() => soon('La modification du téléphone')} />
+            <SettingItem icon="mail-outline" label="Email" value={user?.email} onPress={() => soon('La modification de l\'email')} />
+            <SettingItem icon="location-outline" label="Pays" value={user?.country} onPress={() => soon('La modification du pays')} />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Paiements</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="wallet-outline" label="Méthodes de paiement" />
-            <SettingItem icon="receipt-outline" label="Historique des transactions" />
-            <SettingItem icon="download-outline" label="Télécharger mes factures" />
+            <SettingItem icon="wallet-outline" label="Méthodes de paiement" onPress={() => soon('Les méthodes de paiement')} />
+            <SettingItem icon="receipt-outline" label="Historique des transactions" onPress={() => navigation.navigate('MyTickets')} />
+            <SettingItem icon="download-outline" label="Télécharger mes factures" onPress={() => soon('Le téléchargement des factures')} />
           </View>
         </View>
 
@@ -304,7 +306,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sécurité</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" />
+            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" onPress={() => soon('Le changement de mot de passe')} />
             <SettingItem
               icon="finger-print-outline"
               label="Authentification biométrique"
@@ -313,17 +315,17 @@ export default function ProfileScreen({ navigation, route }) {
               onToggle={setBiometric}
               arrow={false}
             />
-            <SettingItem icon="shield-outline" label="Confidentialité" />
+            <SettingItem icon="shield-outline" label="Confidentialité" onPress={() => soon('Les paramètres de confidentialité')} />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Application</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="help-circle-outline" label="Aide & Support" />
-            <SettingItem icon="star-outline" label="Évaluer l'application" />
-            <SettingItem icon="share-outline" label="Partager Djhina" />
-            <SettingItem icon="information-circle-outline" label="À propos" value="v1.0.0" />
+            <SettingItem icon="help-circle-outline" label="Aide & Support" onPress={() => Linking.openURL('mailto:support@djhina.app')} />
+            <SettingItem icon="star-outline" label="Évaluer l'application" onPress={() => soon('L\'évaluation de l\'application')} />
+            <SettingItem icon="share-outline" label="Partager Djhina" onPress={() => soon('Le partage de l\'application')} />
+            <SettingItem icon="information-circle-outline" label="À propos" value="v1.1.0" onPress={() => Alert.alert('Djhina v1.1.0', 'Le Tchad vit ses événements.\n\n© 2026 Djhina. Tous droits réservés.')} />
           </View>
         </View>
 
@@ -345,7 +347,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.footer}>
           <Text style={styles.footerLogo}>DJHINA</Text>
           <Text style={styles.footerText}>Le Tchad vit ses événements</Text>
-          <Text style={styles.footerVersion}>Version 1.0.0 · © 2026 Djhina</Text>
+          <Text style={styles.footerVersion}>Version 1.1.0 · © 2026 Djhina</Text>
         </View>
 
         <View style={{ height: 100 }} />
