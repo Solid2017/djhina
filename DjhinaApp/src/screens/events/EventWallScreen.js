@@ -13,12 +13,24 @@ import { CATEGORIES, formatDate, formatPrice } from '../../data/mockData';
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - 48;
 
+function CoverImage({ uri, style, category }) {
+  if (uri) return <Image source={{ uri }} style={style} />;
+  const catColors = {
+    festival: ['#F59E0B', '#D97706'], music: ['#EC4899', '#BE185D'],
+    culture: ['#3B82F6', '#1D4ED8'], conference: ['#06B6D4', '#0E7490'],
+    fashion: ['#A855F7', '#7C3AED'], sport: ['#14B8A6', '#0F766E'],
+    business: ['#3B82F6', '#1E40AF'], food: ['#F97316', '#C2410C'],
+  };
+  const colors = catColors[category] || ['#6B7280', '#374151'];
+  return <LinearGradient colors={colors} style={style} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />;
+}
+
 function FeaturedCard({ event, onPress, onLike, onSave }) {
   const progress = event.registered / event.capacity;
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.92} style={styles.featuredCard}>
-      <Image source={{ uri: event.coverImage }} style={styles.featuredImage} />
+      <CoverImage uri={event.coverImage} style={styles.featuredImage} category={event.category} />
       <LinearGradient
         colors={['transparent', 'rgba(0,7,26,0.6)', 'rgba(0,7,26,0.96)']}
         style={styles.featuredGradient}
@@ -99,7 +111,7 @@ function FeaturedCard({ event, onPress, onLike, onSave }) {
 function EventListCard({ event, onPress, onLike, onSave }) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.listCard}>
-      <Image source={{ uri: event.coverImage }} style={styles.listImage} />
+      <CoverImage uri={event.coverImage} style={styles.listImage} category={event.category} />
       <LinearGradient colors={['transparent', 'rgba(0,7,26,0.5)']} style={StyleSheet.absoluteFill} />
       <View style={styles.listOverlay}>
         <View style={[styles.catBadge, { backgroundColor: getCatColor(event.category) + '30' }]}>

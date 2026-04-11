@@ -11,6 +11,34 @@ import { Colors, Typography, Spacing, Radius } from '../../theme';
 
 const COUNTRIES = ['Côte d\'Ivoire', 'Sénégal', 'Mali', 'Burkina Faso', 'Togo', 'Bénin', 'Cameroun', 'Ghana', 'Nigeria'];
 
+function Field({ label, icon, value, onChange, placeholder, type = 'default', secure, toggleSecure, focusedField, onFocus, onBlur }) {
+  return (
+    <View style={styles.fieldGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={[styles.inputWrap, focusedField === label && styles.inputWrapFocused]}>
+        <Ionicons name={icon} size={17} color={focusedField === label ? Colors.primary : Colors.textMuted} style={styles.inputIcon} />
+        <TextInput
+          style={[styles.input, { flex: 1 }]}
+          placeholder={placeholder}
+          placeholderTextColor={Colors.textMuted}
+          value={value}
+          onChangeText={onChange}
+          keyboardType={type}
+          autoCapitalize={type === 'email-address' ? 'none' : 'words'}
+          secureTextEntry={secure}
+          onFocus={() => onFocus(label)}
+          onBlur={onBlur}
+        />
+        {toggleSecure && (
+          <TouchableOpacity onPress={toggleSecure}>
+            <Ionicons name={secure ? 'eye-off-outline' : 'eye-outline'} size={17} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
+}
+
 export default function RegisterScreen({ navigation }) {
   const { login, register } = useApp();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', country: 'Côte d\'Ivoire' });
@@ -63,32 +91,6 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
-  const Field = ({ label, icon, value, onChange, placeholder, type = 'default', secure, toggleSecure }) => (
-    <View style={styles.fieldGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={[styles.inputWrap, focusedField === label && styles.inputWrapFocused]}>
-        <Ionicons name={icon} size={17} color={focusedField === label ? Colors.primary : Colors.textMuted} style={styles.inputIcon} />
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          placeholder={placeholder}
-          placeholderTextColor={Colors.textMuted}
-          value={value}
-          onChangeText={onChange}
-          keyboardType={type}
-          autoCapitalize={type === 'email-address' ? 'none' : 'words'}
-          secureTextEntry={secure}
-          onFocus={() => setFocusedField(label)}
-          onBlur={() => setFocusedField(null)}
-        />
-        {toggleSecure && (
-          <TouchableOpacity onPress={toggleSecure}>
-            <Ionicons name={secure ? 'eye-off-outline' : 'eye-outline'} size={17} color={Colors.textMuted} />
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  );
-
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -140,9 +142,9 @@ export default function RegisterScreen({ navigation }) {
 
             {step === 1 ? (
               <>
-                <Field label="Nom complet" icon="person-outline" value={form.name} onChange={v => update('name', v)} placeholder="Jean Dupont" />
-                <Field label="Email" icon="mail-outline" value={form.email} onChange={v => update('email', v)} placeholder="jean@email.com" type="email-address" />
-                <Field label="Téléphone" icon="call-outline" value={form.phone} onChange={v => update('phone', v)} placeholder="+235 66 00 00 00" type="phone-pad" />
+                <Field label="Nom complet" icon="person-outline" value={form.name} onChange={v => update('name', v)} placeholder="Jean Dupont" focusedField={focusedField} onFocus={setFocusedField} onBlur={() => setFocusedField(null)} />
+                <Field label="Email" icon="mail-outline" value={form.email} onChange={v => update('email', v)} placeholder="jean@email.com" type="email-address" focusedField={focusedField} onFocus={setFocusedField} onBlur={() => setFocusedField(null)} />
+                <Field label="Téléphone" icon="call-outline" value={form.phone} onChange={v => update('phone', v)} placeholder="+235 66 00 00 00" type="phone-pad" focusedField={focusedField} onFocus={setFocusedField} onBlur={() => setFocusedField(null)} />
 
                 {/* Country */}
                 <View style={styles.fieldGroup}>
@@ -179,6 +181,9 @@ export default function RegisterScreen({ navigation }) {
                   placeholder="Minimum 6 caractères"
                   secure={!showPassword}
                   toggleSecure={() => setShowPassword(!showPassword)}
+                  focusedField={focusedField}
+                  onFocus={setFocusedField}
+                  onBlur={() => setFocusedField(null)}
                 />
                 <Field
                   label="Confirmer le mot de passe"
@@ -187,6 +192,9 @@ export default function RegisterScreen({ navigation }) {
                   onChange={v => update('confirm', v)}
                   placeholder="Répétez le mot de passe"
                   secure={!showPassword}
+                  focusedField={focusedField}
+                  onFocus={setFocusedField}
+                  onBlur={() => setFocusedField(null)}
                 />
 
                 <View style={styles.termsRow}>

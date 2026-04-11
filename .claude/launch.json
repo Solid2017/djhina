@@ -1,0 +1,40 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Djhina Backend (dev)",
+      "cwd": "DjhinaBackend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "Djhina Backend (prod)",
+      "cwd": "DjhinaBackend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "port": 3000
+    },
+    {
+      "name": "Djhina App (web)",
+      "cwd": "DjhinaApp",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "web"],
+      "port": 8081
+    },
+    {
+      "name": "Djhina App (Expo DevTools)",
+      "cwd": "DjhinaApp",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "port": 19000
+    },
+    {
+      "name": "Djhina App (Android)",
+      "cwd": "DjhinaApp",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "android"],
+      "port": 19000
+    }
+  ]
+}

@@ -13,6 +13,13 @@ import { COMMENTS, formatDate, formatPrice } from '../../data/mockData';
 import PaymentModal from '../../components/PaymentModal';
 import { agendaApi } from '../../services/api';
 
+const CAT_COLORS = {
+  festival: ['#F59E0B', '#D97706'], music: ['#EC4899', '#BE185D'],
+  culture: ['#3B82F6', '#1D4ED8'], conference: ['#06B6D4', '#0E7490'],
+  fashion: ['#A855F7', '#7C3AED'], sport: ['#14B8A6', '#0F766E'],
+  business: ['#3B82F6', '#1E40AF'], food: ['#F97316', '#C2410C'],
+};
+
 const { width, height } = Dimensions.get('window');
 const IMG_HEIGHT = 320;
 
@@ -121,10 +128,18 @@ export default function EventDetailScreen({ route, navigation }) {
       >
         {/* Hero image */}
         <View style={styles.heroWrap}>
-          <Animated.Image
-            source={{ uri: event.coverImage }}
-            style={[styles.heroImage, { transform: [{ scale: imageScale }, { translateY: imageTranslate }] }]}
-          />
+          {event.coverImage ? (
+            <Animated.Image
+              source={{ uri: event.coverImage }}
+              style={[styles.heroImage, { transform: [{ scale: imageScale }, { translateY: imageTranslate }] }]}
+            />
+          ) : (
+            <LinearGradient
+              colors={CAT_COLORS[event.category] || ['#6B7280', '#374151']}
+              style={[styles.heroImage, { transform: [{ scale: imageScale }, { translateY: imageTranslate }] }]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            />
+          )}
           <LinearGradient
             colors={['rgba(0,7,26,0.1)', 'rgba(0,7,26,0.5)', Colors.background]}
             style={styles.heroGradient}
