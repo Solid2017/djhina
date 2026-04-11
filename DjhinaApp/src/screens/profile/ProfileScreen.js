@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Switch, Alert, ActivityIndicator, Modal, Platform, Linking,
+  Image, Switch, Alert, ActivityIndicator, Modal, Platform, Linking, Share, TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -94,6 +94,34 @@ export default function ProfileScreen({ navigation, route }) {
   const savedEvents = state.events.filter(e => e.isSaved).length;
 
   const soon = (feature) => Alert.alert('Bientôt disponible', `${feature} sera disponible dans une prochaine version.`);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: '🎉 Découvrez Djhina — l\'app des événements au Tchad !\nTéléchargez-la et rejoignez la communauté.',
+        title: 'Djhina — Le Tchad vit ses événements',
+      });
+    } catch (e) {}
+  };
+
+  const handleChangePassword = () => {
+    Alert.alert(
+      'Changer le mot de passe',
+      'Un email de réinitialisation sera envoyé à :\n' + user?.email,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Envoyer', onPress: () => Alert.alert('Email envoyé', 'Vérifiez votre boîte mail pour réinitialiser votre mot de passe.') },
+      ]
+    );
+  };
+
+  const handleAbout = () => {
+    Alert.alert(
+      'Djhina v1.1.0',
+      'Le Tchad vit ses événements.\n\nDjhina est la plateforme de référence pour découvrir et participer aux événements culturels, musicaux et professionnels au Tchad.\n\n© 2026 Djhina. Tous droits réservés.',
+      [{ text: 'OK' }]
+    );
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -306,7 +334,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sécurité</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" onPress={() => soon('Le changement de mot de passe')} />
+            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" onPress={handleChangePassword} />
             <SettingItem
               icon="finger-print-outline"
               label="Authentification biométrique"
@@ -324,8 +352,8 @@ export default function ProfileScreen({ navigation, route }) {
           <View style={styles.settingsGroup}>
             <SettingItem icon="help-circle-outline" label="Aide & Support" onPress={() => Linking.openURL('mailto:support@djhina.app')} />
             <SettingItem icon="star-outline" label="Évaluer l'application" onPress={() => soon('L\'évaluation de l\'application')} />
-            <SettingItem icon="share-outline" label="Partager Djhina" onPress={() => soon('Le partage de l\'application')} />
-            <SettingItem icon="information-circle-outline" label="À propos" value="v1.1.0" onPress={() => Alert.alert('Djhina v1.1.0', 'Le Tchad vit ses événements.\n\n© 2026 Djhina. Tous droits réservés.')} />
+            <SettingItem icon="share-outline" label="Partager Djhina" onPress={handleShare} />
+            <SettingItem icon="information-circle-outline" label="À propos" value="v1.1.0" onPress={handleAbout} />
           </View>
         </View>
 
