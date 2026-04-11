@@ -134,7 +134,28 @@
       "Bash(git push:*)",
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
-      "Bash(git commit -m ':*)"
+      "Bash(git commit -m ':*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(curl -s https://djhina-backend-production.up.railway.app/health)",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/uploads/events/conf-femmes-africaines.jpg\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/api/events?limit=3\")",
+      "Bash(python3 -c \"import sys,json; [print\\(e['title'][:35],'|',e.get\\('coverImage','NULL'\\)\\) for e in json.load\\(sys.stdin\\)['data']['events']]\")",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/uploads/events/1775162095631-72281109.jpg\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/admin/images/logo.png\" -o /dev/null -w \" %{http_code}\")",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/images/events/conf-femmes-africaines.jpg\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/admin/images/logo.png\" -o /dev/null -w \"admin logo: %{http_code}\\\\n\")",
+      "Bash(curl -s \"https://djhina-backend-production.up.railway.app/images/events/conf-femmes-africaines.jpg\" -o /dev/null -w \"event img: %{http_code}\\\\n\")",
+      "Bash(curl -s -X POST https://djhina-backend-production.up.railway.app/api/auth/login -H 'Content-Type: application/json' -d '{\\\\\"email\\\\\":\\\\\"admin@djhina.igotech.tech\\\\\",\\\\\"password\\\\\":\\\\\"Admin@Djhina2026\\\\\"}')",
+      "Bash(curl -s https://djhina-backend-production.up.railway.app/api/admin/speakers -H 'Authorization: Bearer __CMDSUB_OUTPUT__')",
+      "Bash(git commit -m 'fix: bump app.js version to clear browser cache for speakers rendering:*)",
+      "Bash(git commit -m 'debug: add /debug-paths endpoint to diagnose uploads path on Railway:*)",
+      "Bash(sed -i 's|/uploads/avatars/|/media/avatars/|g; s|/uploads/events/|/media/events/|g; s|/uploads/speakers/|/media/speakers/|g' /d/APPS/DjhinaBackend/src/controllers/adminController.js)",
+      "Bash(sed -i 's|/uploads/speakers/|/media/speakers/|g' /d/APPS/DjhinaBackend/src/controllers/speakerController.js)",
+      "Bash(sed -i 's|/uploads/speakers/|/media/speakers/|g' /d/APPS/DjhinaBackend/src/controllers/agendaController.js)",
+      "Bash(sed -i 's|/uploads/avatars/|/media/avatars/|g' /d/APPS/DjhinaBackend/src/controllers/authController.js)",
+      "Bash(sed -i 's|/uploads/events/|/media/events/|g' /d/APPS/DjhinaBackend/src/controllers/eventController.js)",
+      "Bash(git commit -m 'chore: update local Claude settings:*)"
     ]
   }
 }
