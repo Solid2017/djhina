@@ -43,7 +43,7 @@ export default function PrivacySettingsScreen({ navigation }) {
 
   useEffect(() => {
     privacyApi.getSettings().then(res => {
-      if (res.success) setSettings(res.data);
+      if (res.ok && res.data?.data) setSettings(res.data.data);
       setLoading(false);
     });
   }, []);
@@ -52,7 +52,7 @@ export default function PrivacySettingsScreen({ navigation }) {
     const updated = { ...settings, [key]: !settings[key] };
     setSettings(updated);
     setSaving(true);
-    await privacyApi.updateSettings({ [key]: updated[key] });
+    await privacyApi.updateSettings({ [key]: updated[key] ? 1 : 0 });
     setSaving(false);
   };
 
@@ -66,8 +66,9 @@ export default function PrivacySettingsScreen({ navigation }) {
           text: 'Exporter',
           onPress: async () => {
             const res = await privacyApi.exportData();
-            if (res.success) {
-              Alert.alert('Données exportées', `Vos données incluent : profil, ${res.data.tickets?.length || 0} billets, ${res.data.payments?.length || 0} paiements.`);
+            if (res.ok && res.data?.data) {
+              const d = res.data.data;
+              Alert.alert('Données exportées', `Vos données incluent : profil, ${d.tickets?.length || 0} billets, ${d.payments?.length || 0} paiements.`);
             }
           },
         },

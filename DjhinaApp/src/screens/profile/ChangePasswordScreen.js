@@ -65,12 +65,12 @@ export default function ChangePasswordScreen({ navigation }) {
     const res = await privacyApi.changePassword(current, newPass);
     setLoading(false);
 
-    if (res.success) {
+    if (res.ok) {
       Alert.alert('Succès', 'Mot de passe modifié. Reconnectez-vous.', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } else {
-      Alert.alert('Erreur', res.message || 'Mot de passe actuel incorrect.');
+      Alert.alert('Erreur', res.data?.message || 'Mot de passe actuel incorrect.');
     }
   };
 

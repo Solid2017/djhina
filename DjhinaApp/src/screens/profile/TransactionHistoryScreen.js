@@ -32,9 +32,9 @@ export default function TransactionHistoryScreen({ navigation }) {
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     const res = await paymentsApi.history(20, 0);
-    if (res.success) {
-      setPayments(res.data || []);
-      setTotal(res.total || 0);
+    if (res.ok && res.data) {
+      setPayments(res.data.data || []);
+      setTotal(res.data.total || 0);
     }
     setLoading(false);
     setRefreshing(false);

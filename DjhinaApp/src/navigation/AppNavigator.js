@@ -34,6 +34,7 @@ import TransactionHistoryScreen from '../screens/profile/TransactionHistoryScree
 import ChangePasswordScreen from '../screens/profile/ChangePasswordScreen';
 import PrivacySettingsScreen from '../screens/profile/PrivacySettingsScreen';
 import EditProfileScreen from '../screens/profile/EditProfileScreen';
+import DeleteAccountScreen from '../screens/profile/DeleteAccountScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -213,6 +214,11 @@ function AppStack() {
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

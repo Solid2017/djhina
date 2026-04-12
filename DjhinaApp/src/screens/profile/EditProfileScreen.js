@@ -41,7 +41,7 @@ function Field({ label, icon, value, onChange, placeholder, multiline, keyboardT
 }
 
 export default function EditProfileScreen({ navigation }) {
-  const { state, refreshUser } = useApp();
+  const { state, refreshData } = useApp();
   const user = state.user;
 
   const [form, setForm] = useState({
@@ -63,13 +63,13 @@ export default function EditProfileScreen({ navigation }) {
     const res = await profileApi.update(form);
     setLoading(false);
 
-    if (res.success) {
-      if (refreshUser) await refreshUser();
+    if (res.ok) {
+      refreshData();
       Alert.alert('Succès', 'Profil mis à jour.', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } else {
-      Alert.alert('Erreur', res.message || 'Impossible de mettre à jour le profil.');
+      Alert.alert('Erreur', res.data?.message || 'Impossible de mettre à jour le profil.');
     }
   };
 
