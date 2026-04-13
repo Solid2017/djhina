@@ -81,6 +81,7 @@ export function normalizeEvent(e) {
     city:        e.city         || '',
     country:     e.country      || '',
     coverImage:  e.cover_image  ? (e.cover_image.startsWith('http') ? e.cover_image : `${API_BASE}${e.cover_image}`) : '',
+    videoUrl:    e.video_url    ? (e.video_url.startsWith('http')   ? e.video_url   : `${API_BASE}${e.video_url}`)   : null,
     capacity:    e.capacity     || 0,
     registered:  e.registered   || 0,
     isFeatured:  Boolean(e.is_featured),

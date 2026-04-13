@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Image, TouchableOpacity,
   Dimensions, TextInput, KeyboardAvoidingView, Platform, Animated,
-  Share, FlatList, ActivityIndicator,
+  Share, FlatList, ActivityIndicator, Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -144,6 +144,19 @@ export default function EventDetailScreen({ route, navigation }) {
             colors={['rgba(0,7,26,0.1)', 'rgba(0,7,26,0.5)', Colors.background]}
             style={styles.heroGradient}
           />
+
+          {/* Video play button */}
+          {event.videoUrl && (
+            <TouchableOpacity
+              style={styles.videoPlayBtn}
+              onPress={() => Linking.openURL(event.videoUrl)}
+            >
+              <View style={styles.videoPlayCircle}>
+                <Ionicons name="play" size={22} color="#fff" style={{ marginLeft: 3 }} />
+              </View>
+              <Text style={styles.videoPlayLabel}>Voir la vidéo</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Float buttons */}
           <SafeAreaView edges={['top']} style={styles.heroButtons}>
@@ -553,6 +566,9 @@ const styles = StyleSheet.create({
   heroGradient: { ...StyleSheet.absoluteFillObject },
   heroButtons: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16 },
   floatBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,7,26,0.65)', alignItems: 'center', justifyContent: 'center' },
+  videoPlayBtn: { position: 'absolute', bottom: 56, alignSelf: 'center', alignItems: 'center', gap: 6 },
+  videoPlayCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(0,0,0,0.55)', borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
+  videoPlayLabel: { fontSize: 11, fontWeight: '700', color: '#fff', letterSpacing: 0.5, textShadowColor: 'rgba(0,0,0,0.7)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 },
   heroActionsRight: { flexDirection: 'row', gap: 10 },
   organizerChip: { position: 'absolute', bottom: 16, left: 20, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border },
   orgAvatar: { width: 24, height: 24, borderRadius: 12 },
