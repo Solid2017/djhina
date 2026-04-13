@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator,
+  Modal, FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +10,16 @@ import { StatusBar } from 'expo-status-bar';
 import { useApp } from '../../context/AppContext';
 import { Colors, Typography, Spacing, Radius } from '../../theme';
 
-const COUNTRIES = ['Côte d\'Ivoire', 'Sénégal', 'Mali', 'Burkina Faso', 'Togo', 'Bénin', 'Cameroun', 'Ghana', 'Nigeria'];
+const COUNTRIES = [
+  'Tchad', 'Cameroun', 'Nigeria', 'Niger', 'Soudan', 'République Centrafricaine', 'Libye',
+  'Côte d\'Ivoire', 'Sénégal', 'Mali', 'Burkina Faso', 'Togo', 'Bénin', 'Ghana',
+  'Guinée', 'Guinée-Bissau', 'Guinée équatoriale', 'Sierra Leone', 'Liberia', 'Gambie', 'Cap-Vert',
+  'Mauritanie', 'Maroc', 'Algérie', 'Tunisie', 'Égypte',
+  'Congo', 'République Démocratique du Congo', 'Gabon', 'Angola', 'Rwanda', 'Burundi',
+  'Éthiopie', 'Kenya', 'Tanzanie', 'Ouganda', 'Mozambique', 'Zambie', 'Zimbabwe',
+  'Afrique du Sud', 'Namibie', 'Botswana', 'Madagascar', 'Somalie', 'Djibouti',
+  'France', 'Belgique', 'Suisse', 'Canada', 'États-Unis', 'Autre',
+];
 
 function Field({ label, icon, value, onChange, placeholder, type = 'default', secure, toggleSecure, focusedField, onFocus, onBlur }) {
   return (
@@ -41,7 +51,9 @@ function Field({ label, icon, value, onChange, placeholder, type = 'default', se
 
 export default function RegisterScreen({ navigation }) {
   const { login, register } = useApp();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', country: 'Côte d\'Ivoire' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', country: 'Tchad' });
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -149,20 +161,57 @@ export default function RegisterScreen({ navigation }) {
                 {/* Country */}
                 <View style={styles.fieldGroup}>
                   <Text style={styles.label}>Pays</Text>
-                  <View style={styles.countryRow}>
-                    {COUNTRIES.slice(0, 4).map(c => (
-                      <TouchableOpacity
-                        key={c}
-                        style={[styles.countryChip, form.country === c && styles.countryChipActive]}
-                        onPress={() => update('country', c)}
-                      >
-                        <Text style={[styles.countryChipText, form.country === c && styles.countryChipTextActive]}>
-                          {c.split(' ')[0]}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  <TouchableOpacity
+                    style={styles.countrySelector}
+                    onPress={() => { setCountrySearch(''); setShowCountryPicker(true); }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="location-outline" size={17} color={Colors.primary} style={{ marginRight: 10 }} />
+                    <Text style={styles.countrySelectorText}>{form.country}</Text>
+                    <Ionicons name="chevron-down" size={17} color={Colors.textMuted} />
+                  </TouchableOpacity>
                 </View>
+
+                {/* Country Picker Modal */}
+                <Modal visible={showCountryPicker} animationType="slide" transparent onRequestClose={() => setShowCountryPicker(false)}>
+                  <View style={styles.pickerBackdrop}>
+                    <View style={styles.pickerSheet}>
+                      <View style={styles.pickerHeader}>
+                        <Text style={styles.pickerTitle}>Choisir un pays</Text>
+                        <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
+                          <Ionicons name="close" size={22} color={Colors.text} />
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.pickerSearch}>
+                        <Ionicons name="search-outline" size={16} color={Colors.textMuted} />
+                        <TextInput
+                          style={styles.pickerSearchInput}
+                          placeholder="Rechercher..."
+                          placeholderTextColor={Colors.textMuted}
+                          value={countrySearch}
+                          onChangeText={setCountrySearch}
+                          autoFocus
+                        />
+                      </View>
+                      <FlatList
+                        data={COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()))}
+                        keyExtractor={item => item}
+                        keyboardShouldPersistTaps="handled"
+                        renderItem={({ item }) => (
+                          <TouchableOpacity
+                            style={[styles.pickerItem, form.country === item && styles.pickerItemActive]}
+                            onPress={() => { update('country', item); setShowCountryPicker(false); }}
+                          >
+                            <Text style={[styles.pickerItemText, form.country === item && styles.pickerItemTextActive]}>
+                              {item}
+                            </Text>
+                            {form.country === item && <Ionicons name="checkmark" size={18} color={Colors.primary} />}
+                          </TouchableOpacity>
+                        )}
+                      />
+                    </View>
+                  </View>
+                </Modal>
 
                 <TouchableOpacity onPress={handleNext} activeOpacity={0.85}>
                   <LinearGradient colors={[Colors.primary, Colors.primaryLight]} style={styles.btn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
@@ -293,14 +342,38 @@ const styles = StyleSheet.create({
   inputWrapFocused: { borderColor: Colors.primary, backgroundColor: Colors.primaryPale },
   inputIcon: { marginRight: 10 },
   input: { color: Colors.text, fontSize: Typography.base },
-  countryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  countryChip: {
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.full,
-    borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surfaceAlt,
+  countrySelector: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.surfaceAlt, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.border,
+    paddingHorizontal: 14, height: 50,
   },
-  countryChipActive: { backgroundColor: Colors.primaryPale, borderColor: Colors.primary },
-  countryChipText: { fontSize: Typography.xs, color: Colors.text, fontWeight: '500' },
-  countryChipTextActive: { color: Colors.primary },
+  countrySelectorText: { flex: 1, color: Colors.text, fontSize: Typography.base },
+  pickerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  pickerSheet: {
+    backgroundColor: Colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    maxHeight: '75%', paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+  },
+  pickerHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: Colors.border,
+  },
+  pickerTitle: { fontSize: Typography.lg, fontWeight: '700', color: Colors.text },
+  pickerSearch: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    margin: 16, paddingHorizontal: 14, height: 44,
+    backgroundColor: Colors.surfaceAlt, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.border,
+  },
+  pickerSearchInput: { flex: 1, color: Colors.text, fontSize: Typography.sm },
+  pickerItem: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingVertical: 14,
+    borderBottomWidth: 1, borderBottomColor: Colors.divider,
+  },
+  pickerItemActive: { backgroundColor: Colors.primaryPale },
+  pickerItemText: { fontSize: Typography.base, color: Colors.text },
+  pickerItemTextActive: { color: Colors.primary, fontWeight: '600' },
   termsRow: { flexDirection: 'row', gap: 8, marginBottom: 20, alignItems: 'flex-start' },
   termsText: { flex: 1, fontSize: Typography.xs, color: Colors.textMuted, lineHeight: 18 },
   termsLink: { color: Colors.primaryLight },

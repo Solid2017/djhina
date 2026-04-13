@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Switch, Alert, ActivityIndicator, Modal, Platform,
+  Image, Switch, Alert, ActivityIndicator, Modal, Platform, Linking, Share, TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -92,6 +92,25 @@ export default function ProfileScreen({ navigation, route }) {
   const totalSpent = state.myTickets.reduce((sum, t) => sum + t.price, 0);
   const eventsAttended = state.myTickets.filter(t => t.status === 'used').length;
   const savedEvents = state.events.filter(e => e.isSaved).length;
+
+  const soon = (feature) => Alert.alert('Bientôt disponible', `${feature} sera disponible dans une prochaine version.`);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: '🎉 Découvrez Djhina — l\'app des événements au Tchad !\nTéléchargez-la et rejoignez la communauté.',
+        title: 'Djhina — Le Tchad vit ses événements',
+      });
+    } catch (e) {}
+  };
+
+  const handleAbout = () => {
+    Alert.alert(
+      'Djhina v1.1.0',
+      'Le Tchad vit ses événements.\n\nDjhina est la plateforme de référence pour découvrir et participer aux événements culturels, musicaux et professionnels au Tchad.\n\n© 2026 Djhina. Tous droits réservés.',
+      [{ text: 'OK' }]
+    );
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -263,19 +282,19 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Compte</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="person-outline" label="Informations personnelles" value={user?.name} />
-            <SettingItem icon="call-outline" label="Téléphone" value={user?.phone || '+235 66 00 00 00'} />
-            <SettingItem icon="mail-outline" label="Email" value={user?.email} />
-            <SettingItem icon="location-outline" label="Pays" value={user?.country} />
+            <SettingItem icon="person-outline" label="Informations personnelles" value={user?.name} onPress={() => navigation.navigate('EditProfile')} />
+            <SettingItem icon="call-outline" label="Téléphone" value={user?.phone || '+235 66 00 00 00'} onPress={() => navigation.navigate('EditProfile')} />
+            <SettingItem icon="mail-outline" label="Email" value={user?.email} onPress={() => navigation.navigate('EditProfile')} />
+            <SettingItem icon="location-outline" label="Pays" value={user?.country} onPress={() => navigation.navigate('EditProfile')} />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Paiements</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="wallet-outline" label="Méthodes de paiement" />
-            <SettingItem icon="receipt-outline" label="Historique des transactions" />
-            <SettingItem icon="download-outline" label="Télécharger mes factures" />
+            <SettingItem icon="wallet-outline" label="Méthodes de paiement" onPress={() => soon('Les méthodes de paiement mobile')} />
+            <SettingItem icon="receipt-outline" label="Historique des transactions" onPress={() => navigation.navigate('TransactionHistory')} />
+            <SettingItem icon="download-outline" label="Télécharger mes factures" onPress={() => navigation.navigate('TransactionHistory')} />
           </View>
         </View>
 
@@ -304,7 +323,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sécurité</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" />
+            <SettingItem icon="lock-closed-outline" label="Changer le mot de passe" onPress={() => navigation.navigate('ChangePassword')} />
             <SettingItem
               icon="finger-print-outline"
               label="Authentification biométrique"
@@ -313,17 +332,17 @@ export default function ProfileScreen({ navigation, route }) {
               onToggle={setBiometric}
               arrow={false}
             />
-            <SettingItem icon="shield-outline" label="Confidentialité" />
+            <SettingItem icon="shield-outline" label="Confidentialité" onPress={() => navigation.navigate('PrivacySettings')} />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Application</Text>
           <View style={styles.settingsGroup}>
-            <SettingItem icon="help-circle-outline" label="Aide & Support" />
-            <SettingItem icon="star-outline" label="Évaluer l'application" />
-            <SettingItem icon="share-outline" label="Partager Djhina" />
-            <SettingItem icon="information-circle-outline" label="À propos" value="v1.0.0" />
+            <SettingItem icon="help-circle-outline" label="Aide & Support" onPress={() => Linking.openURL('mailto:support@djhina.app')} />
+            <SettingItem icon="star-outline" label="Évaluer l'application" onPress={() => soon('L\'évaluation de l\'application')} />
+            <SettingItem icon="share-outline" label="Partager Djhina" onPress={handleShare} />
+            <SettingItem icon="information-circle-outline" label="À propos" value="v1.1.0" onPress={handleAbout} />
           </View>
         </View>
 
@@ -345,7 +364,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.footer}>
           <Text style={styles.footerLogo}>DJHINA</Text>
           <Text style={styles.footerText}>Le Tchad vit ses événements</Text>
-          <Text style={styles.footerVersion}>Version 1.0.0 · © 2026 Djhina</Text>
+          <Text style={styles.footerVersion}>Version 1.1.0 · © 2026 Djhina</Text>
         </View>
 
         <View style={{ height: 100 }} />

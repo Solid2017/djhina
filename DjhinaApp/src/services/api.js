@@ -278,3 +278,63 @@ export const speakerMessagesApi = {
       body:   JSON.stringify({ content, event_id: event_id || undefined }),
     }),
 };
+
+// ─── Paiements ───────────────────────────────────────────────────────
+export const paymentsApi = {
+  history: (limit = 20, offset = 0) =>
+    apiFetch(`/api/payments?limit=${limit}&offset=${offset}`),
+
+  getPayment: (id) => apiFetch(`/api/payments/${id}`),
+
+  initiate: ({ event_id, ticket_type_id, quantity, provider, phone }) =>
+    apiFetch('/api/payments/initiate', {
+      method: 'POST',
+      body:   JSON.stringify({ event_id, ticket_type_id, quantity, provider, phone }),
+    }),
+
+  confirm: (id) =>
+    apiFetch(`/api/payments/${id}/confirm`, { method: 'POST' }),
+
+  cancel: (id) =>
+    apiFetch(`/api/payments/${id}/cancel`, { method: 'POST' }),
+};
+
+// ─── Confidentialité & Profil ────────────────────────────────────────
+export const privacyApi = {
+  getSettings: () => apiFetch('/api/privacy/settings'),
+
+  updateSettings: (settings) =>
+    apiFetch('/api/privacy/settings', {
+      method: 'PUT',
+      body:   JSON.stringify(settings),
+    }),
+
+  exportData: () => apiFetch('/api/privacy/export'),
+
+  deleteAccount: (password) =>
+    apiFetch('/api/privacy/delete-account', {
+      method: 'POST',
+      body:   JSON.stringify({ password }),
+    }),
+
+  changePassword: (currentPassword, newPassword) =>
+    apiFetch('/api/privacy/change-password', {
+      method: 'PUT',
+      body:   JSON.stringify({ currentPassword, newPassword }),
+    }),
+};
+
+// ─── Profil utilisateur ──────────────────────────────────────────────
+export const profileApi = {
+  update: ({ name, phone, country, city, bio }) =>
+    apiFetch('/api/auth/profile', {
+      method: 'PUT',
+      body:   JSON.stringify({ name, phone, country, city, bio }),
+    }),
+
+  changePassword: (currentPassword, newPassword) =>
+    apiFetch('/api/auth/change-password', {
+      method: 'PUT',
+      body:   JSON.stringify({ currentPassword, newPassword }),
+    }),
+};
