@@ -467,7 +467,7 @@ class OrganizerController {
 
     private function splitDatetime(string $dt): array {
         if (!$dt) return [null, null];
-        if (str_contains($dt, 'T')) return explode('T', $dt, 2);
+        if (strpos($dt, 'T') !== false) return explode('T', $dt, 2);
         return [$dt, null];
     }
 }

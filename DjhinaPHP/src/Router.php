@@ -6,10 +6,9 @@ class Router {
 
     public function __construct() {
         $this->method = $_SERVER['REQUEST_METHOD'];
-        // Nettoyer le chemin (enlever query string et préfixe /api si présent)
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $uri = rawurldecode($uri);
-        $uri = rtrim($uri, '/') ?: '/';
+        $uri = ($uri !== '/' ? rtrim($uri, '/') : '/') ?: '/';
         $this->path = $uri;
     }
 

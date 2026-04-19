@@ -44,7 +44,7 @@ class Auth {
 
     private static function extractToken(): ?string {
         $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-        if (str_starts_with($header, 'Bearer ')) {
+        if (strpos($header, 'Bearer ') === 0) {
             return substr($header, 7);
         }
         return null;
