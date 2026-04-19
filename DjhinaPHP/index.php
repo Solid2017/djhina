@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
+
+// ── Config en premier (doit précéder toute utilisation de constantes) ──
+require_once __DIR__ . '/config.php';
+
 error_reporting(APP_ENV === 'development' ? E_ALL : 0);
 ini_set('display_errors', APP_ENV === 'development' ? '1' : '0');
-
-// ── Autoload ──────────────────────────────────────────────────────
-require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/src/Database.php';
 require_once __DIR__ . '/src/JWT.php';
 require_once __DIR__ . '/src/Router.php';
