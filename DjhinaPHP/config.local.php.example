@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copiez ce fichier en config.local.php et remplissez vos vraies valeurs LWS
+ * Ne JAMAIS committer config.local.php dans git !
+ */
+
+// Base de données LWSPanel (trouvez ces infos dans votre espace client LWS)
+define('DB_HOST', 'localhost');          // Généralement localhost sur LWS
+define('DB_NAME', 'votre_bdd');          // Nom de votre base de données
+define('DB_USER', 'votre_utilisateur');  // Utilisateur MySQL
+define('DB_PASS', 'votre_mot_de_passe'); // Mot de passe MySQL
+define('DB_PORT', '3306');
+
+// JWT — clé secrète forte (au moins 32 caractères aléatoires)
+define('JWT_SECRET', 'CHANGEZ_MOI_AVEC_UNE_CLE_SECRETE_TRES_LONGUE_ET_ALEATOIRE');
+
+// URL de votre site (sans slash final)
+define('APP_URL', 'https://api.djhina.td');
+
+// Environnement
+define('APP_ENV', 'production');
+
+// Origines autorisées pour CORS
+define('ALLOWED_ORIGINS', [
+    'https://djhina.td',
+    'https://www.djhina.td',
+    'http://localhost:8081',   // Expo dev
+]);

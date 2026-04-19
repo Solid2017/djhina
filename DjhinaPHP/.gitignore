@@ -1,0 +1,9 @@
+config.local.php
+uploads/events/*
+uploads/avatars/*
+uploads/speakers/*
+uploads/videos/*
+!uploads/events/.gitkeep
+!uploads/avatars/.gitkeep
+!uploads/speakers/.gitkeep
+!uploads/videos/.gitkeep
