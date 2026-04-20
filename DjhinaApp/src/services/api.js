@@ -33,7 +33,8 @@ async function apiFetch(path, options = {}, retry = true) {
     const json = await res.json().catch(() => ({}));
 
     // Token expiré → tentative de refresh automatique
-    if (res.status === 401 && json.expired && retry) {
+    // PHP renvoie 401 sans champ "expired" — on retry sur tout 401
+    if (res.status === 401 && retry) {
       const refreshed = await refreshAccessToken();
       if (refreshed) return apiFetch(path, options, false);
     }
@@ -100,7 +101,7 @@ export function normalizeEvent(e) {
     minPrice: e.min_price,
     maxPrice: e.max_price,
     // Ticket types inclus dans getOne
-    tickets: (e.ticketTypes || []).map(normalizeTicketType),
+    tickets: (e.ticketTypes || e.ticket_types || []).map(normalizeTicketType),
   };
 }
 
@@ -210,7 +211,7 @@ export const authApi = {
   changePassword: (currentPassword, newPassword) =>
     apiFetch('/api/auth/change-password', {
       method: 'PUT',
-      body:   JSON.stringify({ currentPassword, newPassword }),
+      body:   JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     }),
 };
 
@@ -321,7 +322,7 @@ export const privacyApi = {
   changePassword: (currentPassword, newPassword) =>
     apiFetch('/api/privacy/change-password', {
       method: 'PUT',
-      body:   JSON.stringify({ currentPassword, newPassword }),
+      body:   JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     }),
 };
 
@@ -336,6 +337,6 @@ export const profileApi = {
   changePassword: (currentPassword, newPassword) =>
     apiFetch('/api/auth/change-password', {
       method: 'PUT',
-      body:   JSON.stringify({ currentPassword, newPassword }),
+      body:   JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     }),
 };

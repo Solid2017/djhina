@@ -4,10 +4,8 @@ declare(strict_types=1);
 // ── Config en premier (doit précéder toute utilisation de constantes) ──
 require_once __DIR__ . '/config.php';
 
-// DEBUG TEMPORAIRE — activer les erreurs pour diagnostiquer le 500 LWS
-ini_set('display_errors', '0');
-ini_set('log_errors', '1');
-error_reporting(E_ALL);
+error_reporting(APP_ENV === 'development' ? E_ALL : 0);
+ini_set('display_errors', APP_ENV === 'development' ? '1' : '0');
 require_once __DIR__ . '/src/Database.php';
 require_once __DIR__ . '/src/JWT.php';
 require_once __DIR__ . '/src/Router.php';
@@ -31,8 +29,10 @@ require_once __DIR__ . '/controllers/AgendaController.php';
 
 // ── CORS ──────────────────────────────────────────────────────────
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, ALLOWED_ORIGINS, true) || APP_ENV === 'development') {
-    header("Access-Control-Allow-Origin: $origin");
+// Les apps mobiles natives n'envoient pas d'Origin → on accepte tout
+// Les navigateurs web sont filtrés par ALLOWED_ORIGINS
+if (!$origin || in_array($origin, ALLOWED_ORIGINS, true) || APP_ENV === 'development') {
+    header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
 } else {
     header('Access-Control-Allow-Origin: ' . APP_URL);
 }
@@ -47,27 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // ── Global error handler ──────────────────────────────────────────
-// NOTE: on retourne 200 temporairement pour que LWS n'intercepte pas
-// le 500 et qu'on puisse voir le vrai message d'erreur PHP.
-register_shutdown_function(function () {
-    $e = error_get_last();
-    if ($e && in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
-        http_response_code(200);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['success' => false, 'fatal' => true,
-            'message' => $e['message'], 'file' => $e['file'], 'line' => $e['line']]);
-    }
-});
 set_exception_handler(function (Throwable $e) {
-    http_response_code(200); // 200 pour eviter l'interception LWS
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['success' => false, 'exception' => true,
-        'message' => $e->getMessage(),
-        'file'    => basename($e->getFile()),
-        'line'    => $e->getLine(),
-        'class'   => get_class($e),
-    ]);
-    exit;
+    $msg = APP_ENV === 'development'
+        ? $e->getMessage() . ' [' . $e->getFile() . ':' . $e->getLine() . ']'
+        : 'Erreur interne du serveur.';
+    Response::json(['success' => false, 'message' => $msg], 500);
 });
 
 // ── Rate limiting simple (par IP, en session fichier) ─────────────
