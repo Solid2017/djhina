@@ -6,7 +6,11 @@ class Router {
 
     public function __construct() {
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        // Sur Apache + PHP-FPM (LWS), mod_rewrite passe l'URL originale
+        // dans REDIRECT_URL ; REQUEST_URI peut pointer vers index.php.
+        $raw = $_SERVER['REDIRECT_URL'] ?? $_SERVER['REQUEST_URI'] ?? '/';
+        $uri = parse_url($raw, PHP_URL_PATH) ?? '/';
         $uri = rawurldecode($uri);
         $uri = ($uri !== '/' ? rtrim($uri, '/') : '/') ?: '/';
         $this->path = $uri;

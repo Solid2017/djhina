@@ -1,8 +1,9 @@
 RewriteEngine On
+RewriteBase /
 
-# Si le fichier ou dossier existe, le servir directement
+# Servir directement les fichiers et dossiers existants
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Sinon router vers index.php
-RewriteRule ^ index.php [QSA,L]
+# Tout le reste → index.php (réécriture interne, pas de redirect 302)
+RewriteRule ^ /index.php [QSA,L]
