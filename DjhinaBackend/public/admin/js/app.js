@@ -215,7 +215,7 @@ async function loadUsers() {
 
   grid.innerHTML = data.data.map(u => {
     const roleColor = ROLE_COLOR[u.role] || '#64748b';
-    const avatarUrl = u.avatar ? `${API_BASE}${u.avatar}` : null;
+    const avatarUrl = u.avatar ? (u.avatar.startsWith('http') ? u.avatar : `${API_BASE}${u.avatar}`) : null;
     const avatarHtml = avatarUrl
       ? `<img src="${avatarUrl}" class="usr-card-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
         + `<div class="usr-card-avatar-placeholder" style="background:${roleColor};display:none">${avatar(u.name)}</div>`

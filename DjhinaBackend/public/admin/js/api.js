@@ -85,7 +85,7 @@ function showNetworkBanner(show) {
       'padding:.45rem 1rem', 'font-size:.82rem', 'font-weight:600',
       'display:none', 'align-items:center', 'justify-content:center', 'gap:.5rem',
     ].join(';');
-    _banner.innerHTML = '<i class="bi bi-wifi-off"></i> Serveur inaccessible — vérifiez que le backend tourne sur le port 3000';
+    _banner.innerHTML = '<i class="bi bi-wifi-off"></i> Serveur inaccessible — vérifiez votre connexion ou contactez l\'administrateur';
     document.body.appendChild(_banner);
   }
   _banner.style.display = show ? 'flex' : 'none';
