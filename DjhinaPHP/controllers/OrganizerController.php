@@ -110,7 +110,12 @@ class OrganizerController {
         if (!$fields) { Response::error('Aucune modification fournie.'); return; }
         $values[] = $params['id']; $values[] = $user['id'];
         Database::execute('UPDATE events SET ' . implode(', ', $fields) . ' WHERE id = ? AND organizer_id = ?', $values);
-        Response::ok([], 'Événement mis à jour.');
+        // Retourner l'URL de la nouvelle image pour mise à jour immédiate côté admin
+        $updated = Database::queryOne('SELECT cover_image, video_url FROM events WHERE id = ?', [$params['id']]);
+        Response::ok([
+            'cover_image' => $updated['cover_image'] ? APP_URL . $updated['cover_image'] : null,
+            'video_url'   => $updated['video_url']   ? APP_URL . $updated['video_url']   : null,
+        ], 'Événement mis à jour.');
     }
 
     public function deleteEvent(array $params): void {

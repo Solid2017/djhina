@@ -595,10 +595,17 @@ document.getElementById('formEditEvent').addEventListener('submit', async (ev) =
       method: 'PUT', body: JSON.stringify({ status: newStatus }),
     });
     setBtnLoading(btn, false);
+    // Afficher immédiatement la nouvelle image dans la prévisualisation si elle existe
+    if (data.data?.cover_image) {
+      const prev = document.getElementById('editEvPreview');
+      if (prev) {
+        const img = prev.querySelector('img');
+        if (img) img.src = normalizeImgUrl(data.data.cover_image);
+        prev.style.display = 'block';
+      }
+    }
     toast('Événement mis à jour ✓', 'success');
     closeModal('modalEditEvent');
-    const prev = document.getElementById('editEvPreview');
-    if (prev) prev.style.display = 'none';
     loadEvents();
   } else {
     toast(data?.message || 'Erreur', 'error');

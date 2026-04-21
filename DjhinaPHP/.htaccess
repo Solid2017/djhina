@@ -7,3 +7,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # Tout le reste → index.php (réécriture interne, pas de redirect 302)
 RewriteRule ^ /index.php [QSA,L]
+
+# Upload PHP — augmente les limites pour les images et vidéos
+php_value upload_max_filesize 20M
+php_value post_max_size 50M
+php_value max_execution_time 120
+php_value max_input_time 120
