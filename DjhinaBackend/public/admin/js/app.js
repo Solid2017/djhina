@@ -441,27 +441,16 @@ document.getElementById('formCreateEvent').addEventListener('submit', async (e) 
   const videoFile = document.getElementById('newEvVideo').files[0];
   if (videoFile) fd.append('video', videoFile);
 
-  try {
-    const token = getToken();
-    const res = await fetch(`${API_BASE}${EAPI}/events`, {
-      method: 'POST',
-      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      body: fd,
-    });
-    const data = await res.json();
-    if (data?.success) {
-      toast('Événement créé avec succès ✓', 'success');
-      closeModal('modalCreateEvent');
-      e.target.reset();
-      const prev = document.getElementById('newEvPreview');
-      if (prev) prev.style.display = 'none';
-      loadEvents();
-    } else {
-      toast(data?.message || 'Erreur lors de la création', 'error');
-      setBtnLoading(btn, false);
-    }
-  } catch (err) {
-    toast('Erreur réseau : ' + (err.message || err), 'error');
+  const data = await apiFetch(`${EAPI}/events`, { method: 'POST', body: fd });
+  if (data?.success) {
+    toast('Événement créé avec succès ✓', 'success');
+    closeModal('modalCreateEvent');
+    e.target.reset();
+    const prev = document.getElementById('newEvPreview');
+    if (prev) prev.style.display = 'none';
+    loadEvents();
+  } else {
+    toast(data?.message || 'Erreur lors de la création', 'error');
     setBtnLoading(btn, false);
   }
 });
@@ -597,33 +586,22 @@ document.getElementById('formEditEvent').addEventListener('submit', async (ev) =
   const editVideoFile = document.getElementById('editEvVideo').files[0];
   if (editVideoFile) fd.append('video', editVideoFile);
 
-  try {
-    const token = getToken();
-    const putRes = await fetch(`${API_BASE}${EAPI}/events/${id}`, {
-      method: 'PUT',
-      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      body: fd,
+  // apiFetch convertit automatiquement PUT+FormData en POST+_method=PUT
+  // (PHP ne remplit pas $_FILES/$_POST pour PUT multipart)
+  const data = await apiFetch(`${EAPI}/events/${id}`, { method: 'PUT', body: fd });
+  if (data?.success) {
+    const newStatus = document.getElementById('editEvStatus').value;
+    await apiFetch(`${EAPI}/events/${id}/status`, {
+      method: 'PUT', body: JSON.stringify({ status: newStatus }),
     });
-    const data = await putRes.json();
-    if (data?.success) {
-      // Mettre à jour le statut séparément
-      const newStatus = document.getElementById('editEvStatus').value;
-      await apiFetch(`${EAPI}/events/${id}/status`, {
-        method: 'PUT', body: JSON.stringify({ status: newStatus }),
-      });
-      setBtnLoading(btn, false);
-      toast('Événement mis à jour ✓', 'success');
-      closeModal('modalEditEvent');
-      // Réinitialiser la prévisualisation
-      const prev = document.getElementById('editEvPreview');
-      if (prev) prev.style.display = 'none';
-      loadEvents();
-    } else {
-      toast(data?.message || 'Erreur', 'error');
-      setBtnLoading(btn, false);
-    }
-  } catch (err) {
-    toast('Erreur réseau : ' + (err.message || err), 'error');
+    setBtnLoading(btn, false);
+    toast('Événement mis à jour ✓', 'success');
+    closeModal('modalEditEvent');
+    const prev = document.getElementById('editEvPreview');
+    if (prev) prev.style.display = 'none';
+    loadEvents();
+  } else {
+    toast(data?.message || 'Erreur', 'error');
     setBtnLoading(btn, false);
   }
 });
