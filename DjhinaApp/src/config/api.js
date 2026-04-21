@@ -12,6 +12,9 @@
 // Pour trouver votre IP locale : ipconfig (Windows) / ifconfig (Mac/Linux)
 // ─────────────────────────────────────────────────────────────────────
 
-export const API_BASE = __DEV__
-  ? 'http://10.33.48.121:3000'         // IP locale — à mettre à jour si elle change (ipconfig)
-  : 'https://djhina.igotech.tech';     // Backend PHP sur LWS
+export const API_BASE = 'https://djhina.igotech.tech'; // Backend PHP LWS
+
+// Pour tester en local (backend Node.js) décommentez et adaptez l'IP :
+// export const API_BASE = __DEV__
+//   ? 'http://10.33.48.121:3000'
+//   : 'https://djhina.igotech.tech';
