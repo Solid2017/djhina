@@ -23,13 +23,15 @@ class AuthController {
         }
 
         $id   = Router::uuid();
-        $hash = password_hash($pass, PASSWORD_BCRYPT);
+        // cost 9 = ~2× plus rapide que cost 10 sur hébergement partagé (encore très sécurisé)
+        $hash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => 9]);
         Database::execute(
             'INSERT INTO users (id, name, email, password, phone, role) VALUES (?,?,?,?,?,?)',
             [$id, $name, $email, $hash, $phone, $role]
         );
 
-        $user = Database::queryOne('SELECT id, name, email, role, avatar FROM users WHERE id = ?', [$id]);
+        // On connaît déjà les données insérées — pas besoin d'un SELECT supplémentaire
+        $user = ['id' => $id, 'name' => $name, 'email' => $email, 'role' => $role, 'avatar' => null];
         [$access, $refresh] = $this->issueTokens($user);
 
         Response::created([
@@ -54,7 +56,13 @@ class AuthController {
             Response::error('Compte désactivé.', 403); return;
         }
 
-        Database::execute('UPDATE users SET last_login = NOW() WHERE id = ?', [$user['id']]);
+        // Mise à niveau silencieuse du hash si le cost a changé (ex: ancien hash cost=10 → cost=9)
+        if (password_needs_rehash($user['password'], PASSWORD_BCRYPT, ['cost' => 9])) {
+            $newHash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => 9]);
+            Database::execute('UPDATE users SET password = ?, last_login = NOW() WHERE id = ?', [$newHash, $user['id']]);
+        } else {
+            Database::execute('UPDATE users SET last_login = NOW() WHERE id = ?', [$user['id']]);
+        }
         [$access, $refresh] = $this->issueTokens($user);
 
         Response::ok([
