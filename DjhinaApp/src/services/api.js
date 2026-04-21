@@ -201,29 +201,23 @@ export const authApi = {
       body:   JSON.stringify(data),
     }),
 
-  // Upload avatar via multipart/form-data POST
-  // PHP ne peuple $_FILES que pour POST (pas PUT) → endpoint dédié /api/auth/avatar
+  // Upload avatar — POST /api/auth/avatar avec _method=PUT (method override)
+  // PHP ne peuple $_FILES que pour POST multipart, pas PUT.
   uploadAvatar: async (imageUri) => {
     const token = tokenManager.getToken();
     const filename = imageUri.split('/').pop();
-    const ext = filename.split('.').pop()?.toLowerCase() || 'jpg';
+    const ext      = filename.split('.').pop()?.toLowerCase() || 'jpg';
     const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
 
     const formData = new FormData();
-    formData.append('avatar', {
-      uri:  imageUri,
-      name: `avatar_${Date.now()}.${ext}`,
-      type: mimeType,
-    });
+    formData.append('_method', 'PUT');          // method override côté PHP
+    formData.append('avatar', { uri: imageUri, name: `avatar_${Date.now()}.${ext}`, type: mimeType });
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/avatar`, {
-        method:  'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          // Ne pas définir Content-Type : fetch le génère avec le boundary multipart
-        },
-        body: formData,
+      const res  = await fetch(`${API_BASE}/api/auth/profile`, {
+        method:  'POST',                         // POST pour que PHP peuple $_FILES
+        headers: { 'Authorization': `Bearer ${token}` },
+        body:    formData,
       });
       const json = await res.json().catch(() => ({}));
       return { ok: res.ok, status: res.status, data: json };

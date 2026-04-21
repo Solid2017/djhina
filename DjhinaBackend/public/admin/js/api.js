@@ -15,9 +15,18 @@ async function apiFetch(path, options = {}) {
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
+  // Method override : PHP ne remplit pas $_FILES pour PUT multipart.
+  // On envoie en POST avec _method=PUT → PHP parse correctement $_FILES/$_POST.
+  let method = options.method || 'GET';
+  let body   = options.body;
+  if (isFormData && method === 'PUT') {
+    method = 'POST';
+    body.append('_method', 'PUT');
+  }
+
   let res;
   try {
-    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    res = await fetch(`${API_BASE}${path}`, { ...options, method, body, headers });
   } catch (networkErr) {
     // Erreur réseau (serveur arrêté, reset, timeout…)
     console.warn('[apiFetch] Erreur réseau sur', path, ':', networkErr.message);
