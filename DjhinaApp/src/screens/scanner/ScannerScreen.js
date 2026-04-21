@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
   Dimensions, Vibration, ScrollView, Platform,
 } from 'react-native';
-import { Camera, CameraView } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,8 +25,8 @@ function ScanResult({ result, onClose, onRescan }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(scaleAnim, { toValue: 1, friction: 5, tension: 50, useNativeDriver: false }),
-      Animated.timing(opacityAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+      Animated.spring(scaleAnim, { toValue: 1, friction: 5, tension: 50, useNativeDriver: true }),
+      Animated.timing(opacityAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -110,7 +110,7 @@ function ScanResult({ result, onClose, onRescan }) {
 
 export default function ScannerScreen() {
   const { state, scanTicket } = useApp();
-  const [hasPermission, setHasPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(true);
   const [scanResult, setScanResult] = useState(null);
   const [torchOn, setTorchOn] = useState(false);
@@ -120,28 +120,24 @@ export default function ScannerScreen() {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const cornerAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
+  // Demander la permission caméra au montage
+  useEffect(() => { requestPermission(); }, []);
 
   useEffect(() => {
     if (scanning) {
       // Scan line animation
       Animated.loop(
         Animated.sequence([
-          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: false }),
-          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: false }),
+          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: true }),
+          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
         ])
       ).start();
 
       // Corner pulse
       Animated.loop(
         Animated.sequence([
-          Animated.timing(cornerAnim, { toValue: 1, duration: 1000, useNativeDriver: false }),
-          Animated.timing(cornerAnim, { toValue: 0, duration: 1000, useNativeDriver: false }),
+          Animated.timing(cornerAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+          Animated.timing(cornerAnim, { toValue: 0, duration: 1000, useNativeDriver: true }),
         ])
       ).start();
     } else {
@@ -208,7 +204,7 @@ export default function ScannerScreen() {
 
   const cornerOpacity = cornerAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] });
 
-  if (hasPermission === null) {
+  if (!permission) {
     return (
       <View style={[styles.container, styles.centered]}>
         <Ionicons name="camera-outline" size={48} color={Colors.textMuted} />
@@ -217,7 +213,7 @@ export default function ScannerScreen() {
     );
   }
 
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return (
       <View style={[styles.container, styles.centered]}>
         <LinearGradient colors={[Colors.error + '20', Colors.error + '08']} style={styles.permIconWrap}>

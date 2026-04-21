@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
   Dimensions, Vibration, Platform, Image,
 } from 'react-native';
-import { Camera, CameraView } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,8 +21,8 @@ function ContactFoundCard({ contact, onAdd, onDismiss }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(scale, { toValue: 1, friction: 5, tension: 50, useNativeDriver: false }),
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: false }),
+      Animated.spring(scale, { toValue: 1, friction: 5, tension: 50, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -99,7 +99,7 @@ function ContactFoundCard({ contact, onAdd, onDismiss }) {
 
 export default function ScanContactScreen({ navigation }) {
   const { state, addContact } = useApp();
-  const [hasPermission, setHasPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(true);
   const [foundContact, setFoundContact] = useState(null);
   const [torchOn, setTorchOn] = useState(false);
@@ -108,22 +108,20 @@ export default function ScanContactScreen({ navigation }) {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const cornerAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Camera.requestCameraPermissionsAsync().then(({ status }) => setHasPermission(status === 'granted'));
-  }, []);
+  useEffect(() => { requestPermission(); }, []);
 
   useEffect(() => {
     if (scanning) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: false }),
-          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: false }),
+          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: true }),
+          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
         ])
       ).start();
       Animated.loop(
         Animated.sequence([
-          Animated.timing(cornerAnim, { toValue: 1, duration: 800, useNativeDriver: false }),
-          Animated.timing(cornerAnim, { toValue: 0, duration: 800, useNativeDriver: false }),
+          Animated.timing(cornerAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+          Animated.timing(cornerAnim, { toValue: 0, duration: 800, useNativeDriver: true }),
         ])
       ).start();
     } else {
@@ -192,14 +190,14 @@ export default function ScanContactScreen({ navigation }) {
 
   const cornerOpacity = cornerAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] });
 
-  if (hasPermission === null) return (
+  if (!permission) return (
     <View style={[styles.container, styles.centered]}>
       <Ionicons name="camera-outline" size={48} color={Colors.textMuted} />
       <Text style={{ color: Colors.textSecondary }}>Vérification caméra...</Text>
     </View>
   );
 
-  if (hasPermission === false) return (
+  if (!permission.granted) return (
     <View style={[styles.container, styles.centered]}>
       <Ionicons name="camera-off-outline" size={52} color={Colors.error} />
       <Text style={styles.permTitle}>Accès caméra refusé</Text>

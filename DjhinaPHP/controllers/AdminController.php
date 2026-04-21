@@ -41,7 +41,7 @@ class AdminController {
         $role   = in_array($body['role'] ?? '', ['user','organizer','admin']) ? $body['role'] : 'user';
         Database::execute(
             'INSERT INTO users (id, name, email, password, role, phone, avatar) VALUES (?,?,?,?,?,?,?)',
-            [$id, $name, $email, password_hash($pass, PASSWORD_BCRYPT), $role, $body['phone'] ?? null, $avatar]
+            [$id, $name, $email, password_hash($pass, PASSWORD_BCRYPT, ['cost' => 9]), $role, $body['phone'] ?? null, $avatar]
         );
         Response::created(['id' => $id], 'Utilisateur créé.');
     }
@@ -64,7 +64,7 @@ class AdminController {
         }
         $avatar = Upload::image('avatar', 'avatars');
         if ($avatar) { $fields[] = 'avatar = ?'; $values[] = $avatar; }
-        if (!empty($body['password'])) { $fields[] = 'password = ?'; $values[] = password_hash($body['password'], PASSWORD_BCRYPT); }
+        if (!empty($body['password'])) { $fields[] = 'password = ?'; $values[] = password_hash($body['password'], PASSWORD_BCRYPT, ['cost' => 9]); }
         if (!$fields) { Response::error('Aucune modification.'); return; }
         $values[] = $params['id'];
         Database::execute('UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = ?', $values);
@@ -304,7 +304,7 @@ class AdminController {
 
     private function splitDt(string $dt): array {
         if (!$dt) return [null, null];
-        if (str_contains($dt, 'T')) return explode('T', $dt, 2);
+        if (strpos($dt, 'T') !== false) return explode('T', $dt, 2);
         return [$dt, null];
     }
 }

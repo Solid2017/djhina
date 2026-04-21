@@ -122,7 +122,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
       <Animated.ScrollView
         style={styles.scroll}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
       >

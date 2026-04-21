@@ -6,10 +6,23 @@ class Router {
 
     public function __construct() {
         $this->method = $_SERVER['REQUEST_METHOD'];
-        // Nettoyer le chemin (enlever query string et préfixe /api si présent)
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        // Method override : PHP ne remplit pas $_FILES/$_POST pour les requêtes PUT multipart.
+        // Le client envoie POST + _method=PUT → on traite comme PUT côté routing
+        // mais PHP a déjà parsé $_POST et $_FILES correctement (c'est du POST pour PHP).
+        if ($this->method === 'POST' && !empty($_POST['_method'])) {
+            $override = strtoupper($_POST['_method']);
+            if (in_array($override, ['PUT', 'PATCH', 'DELETE'], true)) {
+                $this->method = $override;
+            }
+        }
+
+        // Sur Apache + PHP-FPM (LWS), mod_rewrite passe l'URL originale
+        // dans REDIRECT_URL ; REQUEST_URI peut pointer vers index.php.
+        $raw = $_SERVER['REDIRECT_URL'] ?? $_SERVER['REQUEST_URI'] ?? '/';
+        $uri = parse_url($raw, PHP_URL_PATH) ?? '/';
         $uri = rawurldecode($uri);
-        $uri = rtrim($uri, '/') ?: '/';
+        $uri = ($uri !== '/' ? rtrim($uri, '/') : '/') ?: '/';
         $this->path = $uri;
     }
 

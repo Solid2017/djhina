@@ -90,7 +90,7 @@ class PrivacyController {
             Response::error('Mot de passe actuel incorrect.', 401); return;
         }
 
-        Database::execute('UPDATE users SET password = ? WHERE id = ?', [password_hash($new, PASSWORD_BCRYPT), $user['id']]);
+        Database::execute('UPDATE users SET password = ? WHERE id = ?', [password_hash($new, PASSWORD_BCRYPT, ['cost' => 9]), $user['id']]);
         Response::ok([], 'Mot de passe mis à jour.');
     }
 }

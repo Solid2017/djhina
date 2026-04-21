@@ -1,10 +1,9 @@
-Options -Indexes
 RewriteEngine On
+RewriteBase /
 
-# Serve real files/directories directly (uploads, admin assets)
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+# Servir directement les fichiers et dossiers existants
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 
-# Route everything else to index.php
-RewriteRule ^ index.php [QSA,L]
+# Tout le reste → index.php (réécriture interne, pas de redirect 302)
+RewriteRule ^ /index.php [QSA,L]

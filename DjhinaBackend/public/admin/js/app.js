@@ -215,7 +215,7 @@ async function loadUsers() {
 
   grid.innerHTML = data.data.map(u => {
     const roleColor = ROLE_COLOR[u.role] || '#64748b';
-    const avatarUrl = u.avatar ? `${API_BASE}${u.avatar}` : null;
+    const avatarUrl = normalizeImgUrl(u.avatar);
     const avatarHtml = avatarUrl
       ? `<img src="${avatarUrl}" class="usr-card-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
         + `<div class="usr-card-avatar-placeholder" style="background:${roleColor};display:none">${avatar(u.name)}</div>`
@@ -359,7 +359,7 @@ async function loadEvents() {
     const sc   = EVENT_STATUS_COLOR[e.status] || '#6b7280';
     const sl   = EVENT_STATUS_LABEL[e.status] || e.status;
     const safeTitle = (e.title||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    const coverSrc  = e.cover_image ? (e.cover_image.startsWith('http') ? e.cover_image : `${API_BASE}${e.cover_image}`) : null;
+    const coverSrc  = normalizeImgUrl(e.cover_image);
     const coverHtml = coverSrc
       ? `<img src="${coverSrc}" alt="${e.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=ev-card-cover-placeholder><i class=bi-bi-calendar-event style=font-size:3rem;color:var(--dj-border)></i></div>'">`
       : `<div class="ev-card-cover-placeholder"><i class="bi bi-calendar-event"></i></div>`;
@@ -441,27 +441,16 @@ document.getElementById('formCreateEvent').addEventListener('submit', async (e) 
   const videoFile = document.getElementById('newEvVideo').files[0];
   if (videoFile) fd.append('video', videoFile);
 
-  try {
-    const token = getToken();
-    const res = await fetch(`${API_BASE}${EAPI}/events`, {
-      method: 'POST',
-      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      body: fd,
-    });
-    const data = await res.json();
-    if (data?.success) {
-      toast('Événement créé avec succès ✓', 'success');
-      closeModal('modalCreateEvent');
-      e.target.reset();
-      const prev = document.getElementById('newEvPreview');
-      if (prev) prev.style.display = 'none';
-      loadEvents();
-    } else {
-      toast(data?.message || 'Erreur lors de la création', 'error');
-      setBtnLoading(btn, false);
-    }
-  } catch (err) {
-    toast('Erreur réseau : ' + (err.message || err), 'error');
+  const data = await apiFetch(`${EAPI}/events`, { method: 'POST', body: fd });
+  if (data?.success) {
+    toast('Événement créé avec succès ✓', 'success');
+    closeModal('modalCreateEvent');
+    e.target.reset();
+    const prev = document.getElementById('newEvPreview');
+    if (prev) prev.style.display = 'none';
+    loadEvents();
+  } else {
+    toast(data?.message || 'Erreur lors de la création', 'error');
     setBtnLoading(btn, false);
   }
 });
@@ -519,7 +508,7 @@ async function _loadEditEventData(id) {
     const prevWrap = document.getElementById('editEvPreview');
     if (prevWrap) {
       if (e.cover_image) {
-        prevWrap.querySelector('img').src = e.cover_image;
+        prevWrap.querySelector('img').src = normalizeImgUrl(e.cover_image);
         prevWrap.style.display = 'block';
         prevWrap.querySelector('img').style.opacity = '0.6';
         prevWrap.title = 'Image actuelle — sélectionne un nouveau fichier pour la remplacer';
@@ -597,33 +586,22 @@ document.getElementById('formEditEvent').addEventListener('submit', async (ev) =
   const editVideoFile = document.getElementById('editEvVideo').files[0];
   if (editVideoFile) fd.append('video', editVideoFile);
 
-  try {
-    const token = getToken();
-    const putRes = await fetch(`${API_BASE}${EAPI}/events/${id}`, {
-      method: 'PUT',
-      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      body: fd,
+  // apiFetch convertit automatiquement PUT+FormData en POST+_method=PUT
+  // (PHP ne remplit pas $_FILES/$_POST pour PUT multipart)
+  const data = await apiFetch(`${EAPI}/events/${id}`, { method: 'PUT', body: fd });
+  if (data?.success) {
+    const newStatus = document.getElementById('editEvStatus').value;
+    await apiFetch(`${EAPI}/events/${id}/status`, {
+      method: 'PUT', body: JSON.stringify({ status: newStatus }),
     });
-    const data = await putRes.json();
-    if (data?.success) {
-      // Mettre à jour le statut séparément
-      const newStatus = document.getElementById('editEvStatus').value;
-      await apiFetch(`${EAPI}/events/${id}/status`, {
-        method: 'PUT', body: JSON.stringify({ status: newStatus }),
-      });
-      setBtnLoading(btn, false);
-      toast('Événement mis à jour ✓', 'success');
-      closeModal('modalEditEvent');
-      // Réinitialiser la prévisualisation
-      const prev = document.getElementById('editEvPreview');
-      if (prev) prev.style.display = 'none';
-      loadEvents();
-    } else {
-      toast(data?.message || 'Erreur', 'error');
-      setBtnLoading(btn, false);
-    }
-  } catch (err) {
-    toast('Erreur réseau : ' + (err.message || err), 'error');
+    setBtnLoading(btn, false);
+    toast('Événement mis à jour ✓', 'success');
+    closeModal('modalEditEvent');
+    const prev = document.getElementById('editEvPreview');
+    if (prev) prev.style.display = 'none';
+    loadEvents();
+  } else {
+    toast(data?.message || 'Erreur', 'error');
     setBtnLoading(btn, false);
   }
 });
@@ -916,7 +894,7 @@ async function loadOrganizers() {
   }
 
   grid.innerHTML = data.data.map(o => {
-    const logoSrc  = o.avatar ? (o.avatar.startsWith('http') ? o.avatar : `${API_BASE}${o.avatar}`) : null;
+    const logoSrc  = normalizeImgUrl(o.avatar);
     const logoHtml = logoSrc
       ? `<img src="${logoSrc}" class="org-card-logo" alt="${o.name}" onerror="this.outerHTML='<div class=org-card-logo-placeholder style=background:${orgColor(o.name)}>${avatar(o.name)}</div>'">`
       : `<div class="org-card-logo-placeholder" style="background:${orgColor(o.name)}">${avatar(o.name)}</div>`;
@@ -984,7 +962,7 @@ async function viewOrg(id) {
   document.getElementById('orgDetailContent').innerHTML = `
     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--dj-border)">
       ${o.avatar
-        ? `<img src="${o.avatar.startsWith('http') ? o.avatar : API_BASE+o.avatar}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--dj-border);flex-shrink:0" alt="${o.name}">`
+        ? `<img src="${normalizeImgUrl(o.avatar)}" style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid var(--dj-border);flex-shrink:0" alt="${o.name}">`
         : `<div style="width:64px;height:64px;border-radius:14px;background:${orgColor(o.name)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.5rem;flex-shrink:0">${avatar(o.name)}</div>`}
       <div>
         <div style="font-size:1.05rem;font-weight:800">${o.name}
@@ -1034,7 +1012,7 @@ async function viewEvent(id) {
 
   const e    = evRes.data;
   const sess = sessRes?.data || [];
-  const coverSrc = e.cover_image ? (e.cover_image.startsWith('http') ? e.cover_image : `${API_BASE}${e.cover_image}`) : null;
+  const coverSrc = normalizeImgUrl(e.cover_image);
 
   // Sessions + speakers HTML
   const sessHtml = sess.length ? sess.map(s => {
@@ -1164,7 +1142,7 @@ async function viewUser(id) {
   const u = data.data;
   const ROLE_COLOR = { admin:'#7c3aed', organizer:'#0891b2', user:'#16a34a' };
   const rc = ROLE_COLOR[u.role] || '#64748b';
-  const avatarUrl = u.avatar ? (u.avatar.startsWith('http') ? u.avatar : `${API_BASE}${u.avatar}`) : null;
+  const avatarUrl = normalizeImgUrl(u.avatar);
   const photoHtml = avatarUrl
     ? `<img src="${avatarUrl}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--dj-border)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
       + `<div style="width:80px;height:80px;border-radius:50%;background:${rc};display:none;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.6rem">${avatar(u.name)}</div>`
@@ -1214,8 +1192,7 @@ function openEditOrg(o) {
   // Logo existant
   const logoWrap = document.getElementById('editOrgCurrentLogo');
   if (o.avatar) {
-    const logoSrc = o.avatar.startsWith('http') ? o.avatar : `${API_BASE}${o.avatar}`;
-    document.getElementById('editOrgCurrentLogoImg').src = logoSrc;
+    document.getElementById('editOrgCurrentLogoImg').src = normalizeImgUrl(o.avatar);
     logoWrap.style.display = 'block';
   } else { logoWrap.style.display = 'none'; }
   document.getElementById('editOrgLogo').value = '';
@@ -1496,7 +1473,7 @@ async function openEditSpeakerModal(id) {
   const photoWrap = document.getElementById('editSpCurrentPhoto');
   if (s.photo) {
     photoWrap.style.display = 'block';
-    document.getElementById('editSpCurrentPhotoImg').src = s.photo;
+    document.getElementById('editSpCurrentPhotoImg').src = normalizeImgUrl(s.photo);
   } else { photoWrap.style.display = 'none'; }
 }
 

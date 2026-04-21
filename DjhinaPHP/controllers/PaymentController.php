@@ -121,11 +121,11 @@ class PaymentController {
     }
     private function getInstructions(string $provider, float $total, string $phone): array {
         $fmt = number_format($total, 0, ',', ' ');
-        return match($provider) {
-            'airtel_money' => ['steps' => ["Composez *111#", "Sélectionnez Paiement", "Entrez le numéro marchand : 77000001", "Montant : {$fmt} XAF", "Confirmez avec votre PIN Airtel Money"]],
-            'moov_tchad'   => ['steps' => ["Composez *155#", "Sélectionnez Paiement Marchand", "Numéro marchand : 66000001", "Montant : {$fmt} XAF", "Validez avec votre code secret Flooz"]],
-            'cash'         => ['steps' => ["Rendez-vous au guichet Djhina", "Référence de paiement : à communiquer au caissier", "Montant à régler : {$fmt} XAF"]],
-            default        => ['steps' => ["Billet gratuit — aucun paiement requis."]],
-        };
+        $map = [
+            'airtel_money' => ['steps' => ["Composez *111#", "Selectionnez Paiement", "Entrez le numero marchand : 77000001", "Montant : {$fmt} XAF", "Confirmez avec votre PIN Airtel Money"]],
+            'moov_tchad'   => ['steps' => ["Composez *155#", "Selectionnez Paiement Marchand", "Numero marchand : 66000001", "Montant : {$fmt} XAF", "Validez avec votre code secret Flooz"]],
+            'cash'         => ['steps' => ["Rendez-vous au guichet Djhina", "Reference de paiement : a communiquer au caissier", "Montant a regler : {$fmt} XAF"]],
+        ];
+        return isset($map[$provider]) ? $map[$provider] : ['steps' => ["Billet gratuit - aucun paiement requis."]];
     }
 }
