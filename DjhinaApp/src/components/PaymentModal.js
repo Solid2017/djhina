@@ -34,8 +34,8 @@ export default function PaymentModal({ visible, onClose, event, ticketType, navi
   useEffect(() => {
     if (step === STEPS.success) {
       Animated.parallel([
-        Animated.spring(successScale, { toValue: 1, friction: 4, tension: 40, useNativeDriver: false }),
-        Animated.timing(successOpacity, { toValue: 1, duration: 400, useNativeDriver: false }),
+        Animated.spring(successScale, { toValue: 1, friction: 4, tension: 40, useNativeDriver: true }),
+        Animated.timing(successOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
       ]).start();
     }
   }, [step]);

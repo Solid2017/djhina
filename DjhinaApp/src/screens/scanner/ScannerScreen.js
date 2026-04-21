@@ -25,8 +25,8 @@ function ScanResult({ result, onClose, onRescan }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(scaleAnim, { toValue: 1, friction: 5, tension: 50, useNativeDriver: false }),
-      Animated.timing(opacityAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+      Animated.spring(scaleAnim, { toValue: 1, friction: 5, tension: 50, useNativeDriver: true }),
+      Animated.timing(opacityAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -128,16 +128,16 @@ export default function ScannerScreen() {
       // Scan line animation
       Animated.loop(
         Animated.sequence([
-          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: false }),
-          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: false }),
+          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: true }),
+          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
         ])
       ).start();
 
       // Corner pulse
       Animated.loop(
         Animated.sequence([
-          Animated.timing(cornerAnim, { toValue: 1, duration: 1000, useNativeDriver: false }),
-          Animated.timing(cornerAnim, { toValue: 0, duration: 1000, useNativeDriver: false }),
+          Animated.timing(cornerAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+          Animated.timing(cornerAnim, { toValue: 0, duration: 1000, useNativeDriver: true }),
         ])
       ).start();
     } else {

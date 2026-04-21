@@ -21,8 +21,8 @@ function ContactFoundCard({ contact, onAdd, onDismiss }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(scale, { toValue: 1, friction: 5, tension: 50, useNativeDriver: false }),
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: false }),
+      Animated.spring(scale, { toValue: 1, friction: 5, tension: 50, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -114,14 +114,14 @@ export default function ScanContactScreen({ navigation }) {
     if (scanning) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: false }),
-          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: false }),
+          Animated.timing(scanLineAnim, { toValue: SCAN_BOX - 4, duration: 2000, useNativeDriver: true }),
+          Animated.timing(scanLineAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
         ])
       ).start();
       Animated.loop(
         Animated.sequence([
-          Animated.timing(cornerAnim, { toValue: 1, duration: 800, useNativeDriver: false }),
-          Animated.timing(cornerAnim, { toValue: 0, duration: 800, useNativeDriver: false }),
+          Animated.timing(cornerAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+          Animated.timing(cornerAnim, { toValue: 0, duration: 800, useNativeDriver: true }),
         ])
       ).start();
     } else {
