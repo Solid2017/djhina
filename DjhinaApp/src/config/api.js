@@ -14,4 +14,4 @@
 
 export const API_BASE = __DEV__
   ? 'http://10.33.48.121:3000'         // IP locale — à mettre à jour si elle change (ipconfig)
-  : 'https://djhina.igotech.tech';     // Backend PHP sur LWSPanel
+  : 'https://djhina.igotech.tech';     // Backend PHP sur LWS
