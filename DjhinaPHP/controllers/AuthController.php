@@ -121,6 +121,23 @@ class AuthController {
         Response::ok($full ?: $user);
     }
 
+    // Endpoint dédié POST /api/auth/avatar
+    // PHP ne remplit $_FILES que pour les requêtes POST (pas PUT) — d'où cet endpoint séparé
+    public function uploadAvatar(array $params, array $user): void {
+        $path = Upload::image('avatar', 'avatars');
+        if (!$path) {
+            Response::error('Aucun fichier reçu ou format invalide (jpg, png, webp).'); return;
+        }
+
+        // Supprimer l'ancien avatar s'il existe
+        $old = Database::queryOne('SELECT avatar FROM users WHERE id = ?', [$user['id']]);
+        if ($old && $old['avatar']) Upload::delete($old['avatar']);
+
+        Database::execute('UPDATE users SET avatar = ? WHERE id = ?', [$path, $user['id']]);
+
+        Response::ok(['avatar' => APP_URL . $path], 'Photo de profil mise à jour.');
+    }
+
     public function updateProfile(array $params, array $user): void {
         $body   = Router::body();
         $avatar = Upload::image('avatar', 'avatars');

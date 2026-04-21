@@ -99,6 +99,7 @@ $router->post('/api/auth/refresh',        fn() => $auth->refresh());
 $router->post('/api/auth/logout',         fn() => $auth->logout());
 $router->get ('/api/auth/me',             fn($p) => $auth->me($p, Auth::require()));
 $router->put ('/api/auth/profile',        fn($p) => $auth->updateProfile($p, Auth::require()));
+$router->post('/api/auth/avatar',         fn($p) => $auth->uploadAvatar($p, Auth::require())); // multipart POST (PHP ne peuple pas $_FILES pour PUT)
 $router->put ('/api/auth/change-password',fn()   => $privacy->changePassword());
 
 // ── Events (public) ───────────────────────────────────────────────
