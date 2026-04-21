@@ -16,8 +16,8 @@ const AppContext = createContext();
 const initialState = {
   user:            null,
   isAuthenticated: false,
-  events:          [],
-  eventsLoading:   true,
+  events:          EVENTS,   // données locales visibles immédiatement — remplacées dès que le serveur répond
+  eventsLoading:   false,    // pas de spinner au démarrage : les données mockées sont déjà là
   myTickets:       [],
   notifications:   [],
   scanHistory:     [],
@@ -173,20 +173,18 @@ export function AppProvider({ children }) {
     loadPublicEvents();
   }, []);
 
+  // Stale-while-revalidate : les données mockées (EVENTS) s'affichent instantanément
+  // puis sont remplacées silencieusement par les vraies données serveur quand elles arrivent.
+  // Aucun spinner de démarrage — l'app est utilisable dès le premier frame.
   const loadPublicEvents = async () => {
-    dispatch({ type: 'EVENTS_LOADING', payload: true });
     try {
       const result = await eventsApi.list({ limit: 50 });
       if (result.ok && result.data?.data?.length) {
         dispatch({ type: 'SET_EVENTS', payload: result.data.data.map(normalizeEvent) });
-      } else {
-        // Fallback : données locales si le serveur est inaccessible
-        console.warn('[AppContext] Serveur inaccessible, utilisation des données locales');
-        dispatch({ type: 'SET_EVENTS', payload: EVENTS });
       }
+      // Si échec ou timeout → les données mockées déjà affichées restent en place
     } catch (e) {
       console.warn('[AppContext] Erreur chargement events:', e.message);
-      dispatch({ type: 'SET_EVENTS', payload: EVENTS });
     }
   };
 

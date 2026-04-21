@@ -5,6 +5,21 @@
 
 import { API_BASE } from '../config/api';
 
+// ─── Cache mémoire (durée de vie de la session app) ──────────────────
+// Évite de refaire un handshake TLS complet (~0.9s) à chaque navigation
+const _cache = new Map();
+function _cacheGet(key, ttlMs = 60000) {
+  const e = _cache.get(key);
+  if (!e) return null;
+  if (Date.now() - e.ts > ttlMs) { _cache.delete(key); return null; }
+  return e.data;
+}
+function _cacheSet(key, data) { _cache.set(key, { data, ts: Date.now() }); }
+export function clearCache(prefix) {
+  if (!prefix) { _cache.clear(); return; }
+  for (const k of _cache.keys()) { if (k.startsWith(prefix)) _cache.delete(k); }
+}
+
 // ─── Gestion du token (en mémoire pour la session) ──────────────────
 let _accessToken  = null;
 let _refreshToken = null;
@@ -19,6 +34,8 @@ export const tokenManager = {
 };
 
 // ─── Fetch générique ────────────────────────────────────────────────
+const API_TIMEOUT_MS = 10000; // 10s — évite l'écran vide infini si LWS ne répond pas
+
 async function apiFetch(path, options = {}, retry = true) {
   const headers = {
     'Content-Type': 'application/json',
@@ -28,8 +45,13 @@ async function apiFetch(path, options = {}, retry = true) {
   const token = tokenManager.getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
+  // Timeout via AbortController
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+
   try {
-    const res  = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    const res  = await fetch(`${API_BASE}${path}`, { ...options, headers, signal: controller.signal });
+    clearTimeout(timer);
     const json = await res.json().catch(() => ({}));
 
     // Token expiré → tentative de refresh automatique
@@ -41,8 +63,10 @@ async function apiFetch(path, options = {}, retry = true) {
 
     return { ok: res.ok, status: res.status, data: json };
   } catch (err) {
-    console.warn('[API] Erreur réseau :', err.message);
-    return { ok: false, status: 0, error: err.message, data: null };
+    clearTimeout(timer);
+    const isTimeout = err.name === 'AbortError';
+    console.warn('[API]', isTimeout ? 'Timeout (10s)' : 'Erreur réseau', ':', err.message);
+    return { ok: false, status: 0, error: isTimeout ? 'timeout' : err.message, data: null };
   }
 }
 
@@ -217,9 +241,14 @@ export const authApi = {
 
 // ─── Événements ──────────────────────────────────────────────────────
 export const eventsApi = {
-  list: (params = {}) => {
+  list: async (params = {}) => {
     const q = new URLSearchParams({ limit: 50, sort: 'date', order: 'ASC', ...params }).toString();
-    return apiFetch(`/api/events?${q}`);
+    const key = `events?${q}`;
+    const hit = _cacheGet(key, 60000); // 60s de cache mémoire
+    if (hit) return hit;
+    const result = await apiFetch(`/api/events?${q}`);
+    if (result.ok) _cacheSet(key, result);
+    return result;
   },
 
   getOne: (id) => apiFetch(`/api/events/${id}`),
