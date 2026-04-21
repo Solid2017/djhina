@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
   Dimensions, Vibration, Platform, Image,
 } from 'react-native';
-import { Camera, CameraView } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -99,7 +99,7 @@ function ContactFoundCard({ contact, onAdd, onDismiss }) {
 
 export default function ScanContactScreen({ navigation }) {
   const { state, addContact } = useApp();
-  const [hasPermission, setHasPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(true);
   const [foundContact, setFoundContact] = useState(null);
   const [torchOn, setTorchOn] = useState(false);
@@ -108,9 +108,7 @@ export default function ScanContactScreen({ navigation }) {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const cornerAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Camera.requestCameraPermissionsAsync().then(({ status }) => setHasPermission(status === 'granted'));
-  }, []);
+  useEffect(() => { requestPermission(); }, []);
 
   useEffect(() => {
     if (scanning) {
@@ -192,14 +190,14 @@ export default function ScanContactScreen({ navigation }) {
 
   const cornerOpacity = cornerAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] });
 
-  if (hasPermission === null) return (
+  if (!permission) return (
     <View style={[styles.container, styles.centered]}>
       <Ionicons name="camera-outline" size={48} color={Colors.textMuted} />
       <Text style={{ color: Colors.textSecondary }}>Vérification caméra...</Text>
     </View>
   );
 
-  if (hasPermission === false) return (
+  if (!permission.granted) return (
     <View style={[styles.container, styles.centered]}>
       <Ionicons name="camera-off-outline" size={52} color={Colors.error} />
       <Text style={styles.permTitle}>Accès caméra refusé</Text>
