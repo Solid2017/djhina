@@ -21,7 +21,17 @@ defined('JWT_SECRET') || define('JWT_SECRET', getenv('JWT_SECRET') ?: 'djhina_se
 defined('JWT_EXPIRES')|| define('JWT_EXPIRES',getenv('JWT_EXPIRES')?: 3600);
 defined('JWT_REFRESH')|| define('JWT_REFRESH',getenv('JWT_REFRESH')?: 604800);
 
-defined('APP_URL')    || define('APP_URL',    getenv('APP_URL')    ?: 'http://localhost');
+// Auto-détecte l'URL de base depuis la requête si APP_URL n'est pas défini
+// Évite le fallback 'http://localhost' qui casse les URLs d'images sur LWS
+if (!defined('APP_URL')) {
+    if (getenv('APP_URL')) {
+        define('APP_URL', getenv('APP_URL'));
+    } else {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' ? 'https' : 'http';
+        $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        define('APP_URL', $scheme . '://' . $host);
+    }
+}
 defined('APP_ENV')    || define('APP_ENV',    getenv('APP_ENV')    ?: 'production');
 
 defined('MAX_FILE_SIZE')  || define('MAX_FILE_SIZE',  5  * 1024 * 1024);

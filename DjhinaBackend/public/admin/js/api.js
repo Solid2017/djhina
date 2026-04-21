@@ -1,6 +1,17 @@
 /* ── API Helper ─────────────────────────────────────── */
 const API_BASE = window.location.origin;
 
+/**
+ * Normalise une URL d'image retournée par le backend.
+ * Le backend peut renvoyer 'http://localhost/uploads/...' si APP_URL est mal configuré.
+ * On extrait toujours le chemin (/uploads/...) et on y préfixe API_BASE (l'origine réelle).
+ */
+function normalizeImgUrl(url) {
+  if (!url) return null;
+  try { return API_BASE + new URL(url).pathname; }
+  catch { return url.startsWith('/') ? API_BASE + url : url; }
+}
+
 function getToken()  { return localStorage.getItem('dj_token'); }
 function getUser()   { try { return JSON.parse(localStorage.getItem('dj_user')); } catch { return null; } }
 function getRefresh(){ return localStorage.getItem('dj_refresh'); }
