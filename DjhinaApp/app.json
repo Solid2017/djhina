@@ -3,10 +3,10 @@
     "name": "Djhina",
     "slug": "djhina-rijasi",
     "version": "1.1.0",
-    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -18,9 +18,11 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.djhina.app",
+      "buildNumber": "2",
       "infoPlist": {
-        "NSCameraUsageDescription": "Djhina a besoin de la caméra pour scanner les QR codes d'accès aux événements.",
-        "NSPhotoLibraryUsageDescription": "Djhina a besoin d'accéder à la galerie pour les photos de profil.",
+        "NSCameraUsageDescription": "Djhina utilise la caméra pour scanner les QR codes d'accès aux événements.",
+        "NSPhotoLibraryUsageDescription": "Djhina accède à votre galerie pour changer votre photo de profil.",
+        "NSPhotoLibraryAddUsageDescription": "Djhina peut sauvegarder votre QR code dans la galerie.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -30,12 +32,20 @@
         "backgroundColor": "#0F0A1E"
       },
       "package": "com.djhina.app",
+      "versionCode": 2,
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35,
+      "minSdkVersion": 24,
+      "allowBackup": false,
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.VIBRATE",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.READ_MEDIA_IMAGES"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
@@ -45,7 +55,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Djhina a besoin de la caméra pour scanner les QR codes."
+          "cameraPermission": "Djhina utilise la caméra pour scanner les QR codes d'accès aux événements."
         }
       ],
       [
@@ -62,6 +72,12 @@
         "projectId": "0b4f3d03-275a-4bed-8ff3-6e26fff8e686"
       }
     },
-    "owner": "igotech"
+    "owner": "igotech",
+    "updates": {
+      "url": "https://u.expo.dev/0b4f3d03-275a-4bed-8ff3-6e26fff8e686"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
   }
 }

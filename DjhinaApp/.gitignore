@@ -18,3 +18,15 @@ npm-debug.*
 .env.local
 android/
 ios/
+
+# Google Play Service Account Key (NE JAMAIS committer)
+google-service-account.json
+*.serviceaccount.json
+
+# Keystore de signature Android (NE JAMAIS committer)
+*.keystore
+release.keystore
+
+# Builds
+*.aab
+*.apk
