@@ -24,11 +24,11 @@ export default function LoginScreen({ navigation }) {
 
   const shake = () => {
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 12, duration: 60, useNativeDriver: false }),
-      Animated.timing(shakeAnim, { toValue: -12, duration: 60, useNativeDriver: false }),
-      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: false }),
-      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: false }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: false }),
+      Animated.timing(shakeAnim, { toValue: 12, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -12, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
     ]).start();
   };
 

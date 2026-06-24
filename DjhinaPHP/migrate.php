@@ -19,6 +19,23 @@ header('Content-Type: text/plain; charset=utf-8');
 $db  = Database::get();
 $ok  = 0; $err = 0;
 
+// ── Pré-fix : corriger la collation des tables déjà créées sans COLLATE ──
+// Nécessaire quand le premier run a créé des tables avec la collation par
+// défaut du serveur (différente de utf8mb4_unicode_ci sur MariaDB 10.11),
+// ce qui bloque les clés étrangères des tables dépendantes.
+$toFix = ['users', 'categories', 'speakers', 'scan_logs', 'refresh_tokens', 'notifications'];
+echo "=== Correction collation tables existantes ===\n";
+foreach ($toFix as $t) {
+    try {
+        $db->exec("ALTER TABLE `$t` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        echo "🔧 ALTER TABLE '$t' collation OK\n";
+    } catch (PDOException $e) {
+        // Table n'existe pas encore — sera créée avec la bonne collation plus bas
+        echo "⏭  ALTER TABLE '$t' ignoré (n'existe pas encore)\n";
+    }
+}
+echo "\n=== Création / vérification des tables ===\n";
+
 $migrations = [
 
 'users' => "CREATE TABLE IF NOT EXISTS users (
@@ -53,7 +70,7 @@ $migrations = [
   expires_at DATETIME     NOT NULL,
   created_at DATETIME     DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'categories' => "CREATE TABLE IF NOT EXISTS categories (
   id         VARCHAR(36)  PRIMARY KEY,
@@ -63,7 +80,7 @@ $migrations = [
   color      VARCHAR(20)  DEFAULT '#6366f1',
   sort_order INT          DEFAULT 0,
   created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'events' => "CREATE TABLE IF NOT EXISTS events (
   id           VARCHAR(36)  PRIMARY KEY,
@@ -94,7 +111,7 @@ $migrations = [
   FOREIGN KEY (organizer_id) REFERENCES users(id) ON DELETE RESTRICT,
   FOREIGN KEY (category_id)  REFERENCES categories(id) ON DELETE SET NULL,
   INDEX idx_status (status), INDEX idx_date (date), INDEX idx_organizer (organizer_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'ticket_types' => "CREATE TABLE IF NOT EXISTS ticket_types (
   id         VARCHAR(36)   PRIMARY KEY,
@@ -111,7 +128,7 @@ $migrations = [
   is_active  TINYINT(1)    DEFAULT 1,
   created_at DATETIME      DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'payments' => "CREATE TABLE IF NOT EXISTS payments (
   id             VARCHAR(36)   PRIMARY KEY,
@@ -134,7 +151,7 @@ $migrations = [
   FOREIGN KEY (user_id)        REFERENCES users(id),
   FOREIGN KEY (event_id)       REFERENCES events(id),
   FOREIGN KEY (ticket_type_id) REFERENCES ticket_types(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'tickets' => "CREATE TABLE IF NOT EXISTS tickets (
   id             VARCHAR(36)   PRIMARY KEY,
@@ -158,7 +175,7 @@ $migrations = [
   FOREIGN KEY (event_id)       REFERENCES events(id),
   FOREIGN KEY (ticket_type_id) REFERENCES ticket_types(id),
   FOREIGN KEY (user_id)        REFERENCES users(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'scan_logs' => "CREATE TABLE IF NOT EXISTS scan_logs (
   id          VARCHAR(36) PRIMARY KEY,
@@ -171,7 +188,7 @@ $migrations = [
   device_info VARCHAR(500),
   scanned_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_event (event_id), INDEX idx_ticket (ticket_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'event_likes' => "CREATE TABLE IF NOT EXISTS event_likes (
   user_id    VARCHAR(36) NOT NULL,
@@ -180,7 +197,7 @@ $migrations = [
   PRIMARY KEY (user_id, event_id),
   FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE CASCADE,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'event_saves' => "CREATE TABLE IF NOT EXISTS event_saves (
   user_id    VARCHAR(36) NOT NULL,
@@ -189,7 +206,7 @@ $migrations = [
   PRIMARY KEY (user_id, event_id),
   FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE CASCADE,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'comments' => "CREATE TABLE IF NOT EXISTS comments (
   id          VARCHAR(36)  PRIMARY KEY,
@@ -203,7 +220,7 @@ $migrations = [
   updated_at  DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'notifications' => "CREATE TABLE IF NOT EXISTS notifications (
   id         VARCHAR(36)  PRIMARY KEY,
@@ -216,7 +233,7 @@ $migrations = [
   created_at DATETIME     DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_user_read (user_id, is_read)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'speakers' => "CREATE TABLE IF NOT EXISTS speakers (
   id           VARCHAR(36)  PRIMARY KEY,
@@ -229,7 +246,7 @@ $migrations = [
   bio          TEXT,
   photo        VARCHAR(500),
   created_at   DATETIME     DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'sessions' => "CREATE TABLE IF NOT EXISTS sessions (
   id          VARCHAR(36)  PRIMARY KEY,
@@ -242,7 +259,7 @@ $migrations = [
   room        VARCHAR(100),
   created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'session_speakers' => "CREATE TABLE IF NOT EXISTS session_speakers (
   session_id VARCHAR(36) NOT NULL,
@@ -250,7 +267,7 @@ $migrations = [
   PRIMARY KEY (session_id, speaker_id),
   FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
   FOREIGN KEY (speaker_id) REFERENCES speakers(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'session_bookings' => "CREATE TABLE IF NOT EXISTS session_bookings (
   id         VARCHAR(36) PRIMARY KEY,
@@ -260,7 +277,7 @@ $migrations = [
   UNIQUE KEY uniq_booking (session_id, user_id),
   FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 'speaker_messages' => "CREATE TABLE IF NOT EXISTS speaker_messages (
   id         VARCHAR(36) PRIMARY KEY,
@@ -272,7 +289,7 @@ $migrations = [
   created_at DATETIME    DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (speaker_id) REFERENCES speakers(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 ];
 

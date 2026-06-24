@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
+
+// ── Config en premier (doit précéder toute utilisation de constantes) ──
+require_once __DIR__ . '/config.php';
+
 error_reporting(APP_ENV === 'development' ? E_ALL : 0);
 ini_set('display_errors', APP_ENV === 'development' ? '1' : '0');
-
-// ── Autoload ──────────────────────────────────────────────────────
-require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/src/Database.php';
 require_once __DIR__ . '/src/JWT.php';
 require_once __DIR__ . '/src/Router.php';
@@ -28,8 +29,10 @@ require_once __DIR__ . '/controllers/AgendaController.php';
 
 // ── CORS ──────────────────────────────────────────────────────────
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, ALLOWED_ORIGINS, true) || APP_ENV === 'development') {
-    header("Access-Control-Allow-Origin: $origin");
+// Les apps mobiles natives n'envoient pas d'Origin → on accepte tout
+// Les navigateurs web sont filtrés par ALLOWED_ORIGINS
+if (!$origin || in_array($origin, ALLOWED_ORIGINS, true) || APP_ENV === 'development') {
+    header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
 } else {
     header('Access-Control-Allow-Origin: ' . APP_URL);
 }
@@ -45,7 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // ── Global error handler ──────────────────────────────────────────
 set_exception_handler(function (Throwable $e) {
-    $msg = APP_ENV === 'development' ? $e->getMessage() . ' [' . $e->getFile() . ':' . $e->getLine() . ']' : 'Erreur interne du serveur.';
+    $msg = APP_ENV === 'development'
+        ? $e->getMessage() . ' [' . $e->getFile() . ':' . $e->getLine() . ']'
+        : 'Erreur interne du serveur.';
     Response::json(['success' => false, 'message' => $msg], 500);
 });
 
@@ -94,6 +99,7 @@ $router->post('/api/auth/refresh',        fn() => $auth->refresh());
 $router->post('/api/auth/logout',         fn() => $auth->logout());
 $router->get ('/api/auth/me',             fn($p) => $auth->me($p, Auth::require()));
 $router->put ('/api/auth/profile',        fn($p) => $auth->updateProfile($p, Auth::require()));
+$router->post('/api/auth/avatar',         fn($p) => $auth->uploadAvatar($p, Auth::require())); // multipart POST (PHP ne peuple pas $_FILES pour PUT)
 $router->put ('/api/auth/change-password',fn()   => $privacy->changePassword());
 
 // ── Events (public) ───────────────────────────────────────────────

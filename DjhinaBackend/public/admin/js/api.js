@@ -1,6 +1,17 @@
 /* ── API Helper ─────────────────────────────────────── */
 const API_BASE = window.location.origin;
 
+/**
+ * Normalise une URL d'image retournée par le backend.
+ * Le backend peut renvoyer 'http://localhost/uploads/...' si APP_URL est mal configuré.
+ * On extrait toujours le chemin (/uploads/...) et on y préfixe API_BASE (l'origine réelle).
+ */
+function normalizeImgUrl(url) {
+  if (!url) return null;
+  try { return API_BASE + new URL(url).pathname; }
+  catch { return url.startsWith('/') ? API_BASE + url : url; }
+}
+
 function getToken()  { return localStorage.getItem('dj_token'); }
 function getUser()   { try { return JSON.parse(localStorage.getItem('dj_user')); } catch { return null; } }
 function getRefresh(){ return localStorage.getItem('dj_refresh'); }
@@ -15,9 +26,18 @@ async function apiFetch(path, options = {}) {
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
+  // Method override : PHP ne remplit pas $_FILES pour PUT multipart.
+  // On envoie en POST avec _method=PUT → PHP parse correctement $_FILES/$_POST.
+  let method = options.method || 'GET';
+  let body   = options.body;
+  if (isFormData && method === 'PUT') {
+    method = 'POST';
+    body.append('_method', 'PUT');
+  }
+
   let res;
   try {
-    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    res = await fetch(`${API_BASE}${path}`, { ...options, method, body, headers });
   } catch (networkErr) {
     // Erreur réseau (serveur arrêté, reset, timeout…)
     console.warn('[apiFetch] Erreur réseau sur', path, ':', networkErr.message);
@@ -85,7 +105,7 @@ function showNetworkBanner(show) {
       'padding:.45rem 1rem', 'font-size:.82rem', 'font-weight:600',
       'display:none', 'align-items:center', 'justify-content:center', 'gap:.5rem',
     ].join(';');
-    _banner.innerHTML = '<i class="bi bi-wifi-off"></i> Serveur inaccessible — vérifiez que le backend tourne sur le port 3000';
+    _banner.innerHTML = '<i class="bi bi-wifi-off"></i> Serveur inaccessible — vérifiez votre connexion ou contactez l\'administrateur';
     document.body.appendChild(_banner);
   }
   _banner.style.display = show ? 'flex' : 'none';

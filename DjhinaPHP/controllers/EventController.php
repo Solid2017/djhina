@@ -2,6 +2,14 @@
 class EventController {
 
     public function list(): void {
+        // Cache CDN LWS pour les requêtes publiques (non authentifiées)
+        // Edge-Cache-Engine-Mode est ACTIVE sur LWS → sert les réponses cachées en <100ms
+        if (empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            header('Cache-Control: public, max-age=60, s-maxage=120');
+        } else {
+            header('Cache-Control: private, no-store');
+        }
+
         [$page, $limit, $offset] = Router::pagination();
         $where  = ["e.status = 'published'"];
         $params = [];
