@@ -27,6 +27,13 @@ google-service-account.json
 *.keystore
 release.keystore
 
+# Credentials EAS (mots de passe keystore)
+credentials.json
+credentials/
+
+# Tokens de registration (ne pas exposer publiquement)
+assets/adi-registration.properties
+
 # Builds
 *.aab
 *.apk
